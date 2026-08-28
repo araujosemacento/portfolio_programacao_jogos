@@ -1,72 +1,71 @@
 <script>
-	import P5Canvas from '$lib/components/P5Canvas.svelte';
+	import P5Frame from '$lib/components/P5Frame.svelte';
 	import CodeModal from '$lib/components/CodeModal.svelte';
 
 	let { data } = $props();
 	let project = $derived(data.project);
 
 	let isModalOpen = $state(false);
+	let reloadKey = $state(0);
 
-	// Criação da sketch p5 interativa baseada no projeto
-	let currentSketch = $derived.by(() => {
-		if (project.sketchFunction) {
-			return project.sketchFunction;
-		}
-
-		// Fallback para sketches interativas padrão caso sketchFunction não seja fornecida
-		return (p5) => {
-			let angle = 0;
-			p5.setup = () => {
-				p5.createCanvas(640, 420);
-				p5.angleMode(p5.DEGREES);
-			};
-			p5.draw = () => {
-				p5.background(project.accentColor || '#fff385');
-				p5.translate(p5.width / 2, p5.height / 2);
-				p5.noFill();
-				p5.stroke(project.textColor || '#18181b');
-				p5.strokeWeight(3.5);
-				for (let i = 0; i < 5; i++) {
-					p5.push();
-					p5.rotate(angle + i * 30);
-					p5.rectMode(p5.CENTER);
-					p5.rect(0, 0, 80 + i * 25, 80 + i * 25, 12);
-					p5.pop();
-				}
-				angle += 0.8;
-			};
-		};
-	});
+	function restartSketch() {
+		reloadKey += 1;
+	}
 </script>
 
 <svelte:head>
 	<title>{project.title} | Programação para Jogos I</title>
 </svelte:head>
 
-<div class="mx-auto flex max-w-5xl flex-col items-center px-4 py-8 sm:px-6 lg:px-8">
+<div class="mx-auto flex max-w-5xl flex-col px-4 py-8 sm:px-6 lg:px-8">
 	<!-- Container Principal da Sketch p5.js -->
 	<div
-		class="relative flex w-full flex-col items-center overflow-hidden rounded-2xl border border-zinc-800 bg-[#18181b]/60 p-6 shadow-2xl backdrop-blur-sm"
+		class="relative flex w-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#141417] p-4 sm:p-6 shadow-2xl backdrop-blur-sm"
 	>
-		<P5Canvas sketch={currentSketch} className="w-full flex justify-center" />
+		<!-- Canvas Frame com Isolamento Seguro (sempre inicia limpo e zerado) -->
+		{#key reloadKey}
+			<div class="relative flex h-135 w-full items-center justify-center overflow-hidden rounded-xl bg-[#0a0a0c]">
+				<P5Frame sketch={project} className="h-full w-full" />
+			</div>
+		{/key}
 
 		<!-- Barra de Ações e Informações abaixo do Canvas -->
-		<div class="mt-6 flex w-full max-w-2xl items-center justify-between border-t border-zinc-800/80 pt-4">
+		<div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-zinc-800/80 pt-4">
 			<div>
-				<h2 class="font-heading text-lg font-bold text-zinc-100">{project.title}</h2>
-				<p class="font-body text-sm text-zinc-400">{project.description}</p>
+				<div class="flex items-center gap-2">
+					<h2 class="font-heading text-xl font-bold text-zinc-100">{project.title}</h2>
+					<span class="rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-0.5 font-code text-[11px] text-zinc-400">
+						{project.files.length} {project.files.length === 1 ? 'arquivo' : 'arquivos'}
+					</span>
+				</div>
+				<p class="mt-1 font-body text-sm text-zinc-400">{project.description}</p>
 			</div>
 
-			<button
-				onclick={() => (isModalOpen = true)}
-				class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-200 shadow-sm transition hover:border-[#ed225d]/60 hover:bg-[#ed225d]/10 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.25)]"
-			>
-				<span class="font-code text-xs font-semibold">&lt;/&gt;</span>
-				<span>Ver Código</span>
-			</button>
+			<div class="flex items-center gap-2">
+				<!-- Botão de Reiniciar Sketch -->
+				<button
+					onclick={restartSketch}
+					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-800 hover:text-white"
+					title="Reiniciar sketch com estado inicial limpo"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+					</svg>
+					<span>Reiniciar</span>
+				</button>
+
+				<!-- Botão de Ver Código em Abas -->
+				<button
+					onclick={() => (isModalOpen = true)}
+					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-200 shadow-sm transition hover:border-[#ed225d]/60 hover:bg-[#ed225d]/10 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.25)]"
+				>
+					<span class="font-code text-xs font-semibold">&lt;/&gt;</span>
+					<span>Ver Código ({project.codeTabs.length})</span>
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
 
-<!-- Modal de Código -->
+<!-- Modal de Código com Múltiplas Abas -->
 <CodeModal bind:isOpen={isModalOpen} {project} />

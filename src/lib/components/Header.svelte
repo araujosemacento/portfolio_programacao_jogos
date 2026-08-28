@@ -1,12 +1,16 @@
 <script>
+
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { projects } from '$lib/data/projects.js';
+	import { getSketchBySlug } from '$lib/sketches/loader.js';
 
 	// Determina se estamos na página inicial ou em um projeto específico
 	let isProjectPage = $derived(!!page.params.slug);
 	let currentProject = $derived(
-		isProjectPage ? projects.find((p) => p.slug === page.params.slug) : null
+		isProjectPage
+			// @ts-ignore
+			? getSketchBySlug(page.params.slug)
+			: null
 	);
 	let projectTitle = $derived(currentProject?.title || 'Projeto');
 </script>
@@ -16,7 +20,7 @@
 >
 	<div class="mx-auto flex h-16 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
 		{#if isProjectPage}
-			<!-- Header em página de projeto: seta para voltar à esquerda e título do projeto -->
+			<!-- Header em página de projeto: seta para voltar e breadcrumb do projeto -->
 			<div class="flex items-center gap-3">
 				<a
 					href={resolve('/')}
@@ -39,9 +43,18 @@
 						/>
 					</svg>
 				</a>
-				<h1 class="font-heading text-lg font-bold tracking-tight text-zinc-100 sm:text-xl">
-					{projectTitle}
-				</h1>
+				<div class="flex items-center gap-2">
+					<a
+						href={resolve('/')}
+						class="hidden text-xs font-semibold text-zinc-400 transition hover:text-zinc-200 sm:inline"
+					>
+						Portfólio
+					</a>
+					<span class="hidden text-zinc-600 sm:inline">/</span>
+					<h1 class="font-heading text-lg font-bold tracking-tight text-zinc-100 sm:text-xl">
+						{projectTitle}
+					</h1>
+				</div>
 			</div>
 		{:else}
 			<!-- Header na página inicial: título com ponto de destaque neon p5 rosa/vermelho -->

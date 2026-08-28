@@ -20,6 +20,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
+		"@types/prismjs": "^1.26.6",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",
@@ -34,6 +35,6 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
-		"p5-svelte": "^3.1.2"
+		"prismjs": "^1.30.0"
 	}
 }
