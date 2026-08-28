@@ -6,7 +6,8 @@ import { protectLoops } from './loop-guard.js';
  * @param {object} params
  * @param {string} params.slug Identificador da pasta do sketch
  * @param {Array<{ name: string, code: string }>} params.files Lista de arquivos do sketch ordenados
- * @param {boolean} [params.isThumbnail=false] Se a renderização é para thumbnail de card
+ * @param {'thumbnail' | 'preview' | 'interactive'} [params.mode='interactive'] Modo de execução da sketch
+ * @param {boolean} [params.isThumbnail] Legado: se true, define mode como 'thumbnail'
  * @param {boolean} [params.useLoopGuard=true] Se deve aplicar sentinela contra loops infinitos
  * @param {boolean} [params.enableSound=false] Se deve incluir p5.sound.min.js
  * @param {string} [params.basePath=''] Caminho base da aplicação (ex: /portfolio_programacao_jogos para GitHub Pages)
@@ -15,11 +16,18 @@ import { protectLoops } from './loop-guard.js';
 export function generateRunnerHtml({
 	slug,
 	files = [],
-	isThumbnail = false,
+	mode,
+	isThumbnail,
 	useLoopGuard = true,
 	enableSound = false,
 	basePath = ''
 }) {
+	// Normaliza o modo de execução
+	/** @type {'thumbnail' | 'preview' | 'interactive'} */
+	const currentMode = mode || (isThumbnail ? 'thumbnail' : 'interactive');
+	const isCompact = currentMode === 'thumbnail' || currentMode === 'preview';
+	const soundEnabled = currentMode === 'interactive' && Boolean(enableSound);
+
 	// Normaliza basePath garantindo que não tenha barra final se existir
 	const cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
 	const p5ScriptUrl = `${cleanBase}/p5.min.js`;
@@ -59,7 +67,7 @@ export function generateRunnerHtml({
 			position: relative;
 		}
 		${
-			isThumbnail
+			isCompact
 				? `
 		canvas {
 			width: 100% !important;
@@ -113,7 +121,7 @@ export function generateRunnerHtml({
 	</style>
 	<!-- Carregamento do p5.js com caminho base compatível com GitHub Pages -->
 	<script src="${p5ScriptUrl}"></script>
-	${enableSound ? `<script src="${p5SoundScriptUrl}"></script>` : ''}
+	${soundEnabled ? `<script src="${p5SoundScriptUrl}"></script>` : ''}
 </head>
 <body>
 	<div id="error-overlay">
@@ -122,15 +130,22 @@ export function generateRunnerHtml({
 	</div>
 
 	<script>
-		// Sentinela de timeout para prevenção de loops infinitos por frame
+		// Sentinela de controle de execução por frame
+		window.__loopCounters = {};
 		window.__loopTimers = {};
 		window.__checkLoop = function(id, maxMs) {
-			var now = performance.now();
-			if (!window.__loopTimers[id]) {
-				window.__loopTimers[id] = now;
-				return false;
+			window.__loopCounters[id] = (window.__loopCounters[id] || 0) + 1;
+			if (window.__loopCounters[id] % 200 === 0) {
+				var now = performance.now();
+				if (!window.__loopTimers[id]) {
+					window.__loopTimers[id] = now;
+					return false;
+				}
+				if (now - window.__loopTimers[id] > maxMs) {
+					return true;
+				}
 			}
-			return (now - window.__loopTimers[id] > maxMs);
+			return false;
 		};
 
 		// Error boundary interno do iframe
@@ -156,34 +171,70 @@ export function generateRunnerHtml({
 		});
 
 		${
-			isThumbnail
+			currentMode === 'thumbnail'
 				? `
-		// Modo Thumbnail: renderiza 1 frame e pausa o loop com noLoop() para economizar GPU/CPU
-		window.addEventListener('load', function() {
-			setTimeout(function() {
-				if (typeof noLoop === 'function') {
-					noLoop();
-				}
-			}, 40);
-		});
+		// Modo Thumbnail Estático: executa setup() e pausa no primeiro frame de draw() com noLoop()
+		(function() {
+			var _rawDraw = null;
+			var _executed = false;
+			Object.defineProperty(window, 'draw', {
+				get: function() { return _rawDraw; },
+				set: function(fn) {
+					_rawDraw = function() {
+						window.__loopCounters = {};
+						window.__loopTimers = {};
+						try {
+							fn.apply(this, arguments);
+						} catch(err) {
+							displayRuntimeError(err.message || String(err));
+						} finally {
+							if (!_executed && typeof noLoop === 'function') {
+								_executed = true;
+								noLoop();
+							}
+						}
+					};
+				},
+				configurable: true
+			});
+		})();
+		`
+				: `
+		// Modo Contínuo (Preview ou Interativo): intercepta draw para monitoramento e reset seguro de timers
+		(function() {
+			var _rawDraw = null;
+			Object.defineProperty(window, 'draw', {
+				get: function() { return _rawDraw; },
+				set: function(fn) {
+					_rawDraw = function() {
+						window.__loopCounters = {};
+						window.__loopTimers = {};
+						try {
+							fn.apply(this, arguments);
+						} catch(err) {
+							displayRuntimeError(err.message || String(err));
+						}
+					};
+				},
+				configurable: true
+			});
+		})();
+		`
+		}
+
+		${
+			isCompact
+				? `
+		// Neutraliza eventos e callbacks de teclado nos modos de card (thumbnail e preview)
+		window.addEventListener('keydown', function(e) { e.stopPropagation(); }, true);
+		window.addEventListener('keyup', function(e) { e.stopPropagation(); }, true);
+		window.addEventListener('keypress', function(e) { e.stopPropagation(); }, true);
+		Object.defineProperty(window, 'keyPressed', { get: function() { return function(){}; }, set: function() {}, configurable: true });
+		Object.defineProperty(window, 'keyReleased', { get: function() { return function(){}; }, set: function() {}, configurable: true });
+		Object.defineProperty(window, 'keyTyped', { get: function() { return function(){}; }, set: function() {}, configurable: true });
 		`
 				: ''
 		}
-
-		// Hook de ciclo de vida para resetar os sentinelas a cada frame de draw()
-		window.addEventListener('load', function() {
-			if (typeof window.draw === 'function') {
-				var originalDraw = window.draw;
-				window.draw = function() {
-					window.__loopTimers = {};
-					try {
-						originalDraw.apply(this, arguments);
-					} catch(err) {
-						displayRuntimeError(err.message || String(err));
-					}
-				};
-			}
-		});
 	</script>
 
 	<!-- Injeção dos Scripts do Sketch -->

@@ -6,6 +6,7 @@
 	/** 
 	 * @type {{
 	 *   sketch: { slug?: string, files?: Array<{ name: string, code: string }>, enableSound?: boolean },
+	 *   mode?: 'thumbnail' | 'preview' | 'interactive',
 	 *   isThumbnail?: boolean,
 	 *   className?: string,
 	 *   debounceMs?: number
@@ -13,10 +14,14 @@
 	 */
 	let {
 		sketch,
+		mode,
 		isThumbnail = false,
 		className = '',
 		debounceMs = 300
 	} = $props();
+
+	// Normaliza o modo efetivo
+	let effectiveMode = $derived(mode || (isThumbnail ? 'thumbnail' : 'interactive'));
 
 	/** @type {HTMLIFrameElement | null} */
 	let iframeEl = $state(null);
@@ -29,12 +34,13 @@
 	$effect(() => {
 		if (!sketch || !sketch.files) return;
 
+		const currentTargetMode = effectiveMode;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(() => {
 			currentSrcdoc = generateRunnerHtml({
 				slug: sketch.slug || 'sketch',
 				files: sketch.files || [],
-				isThumbnail,
+				mode: currentTargetMode,
 				enableSound: Boolean(sketch.enableSound),
 				basePath: base
 			});
@@ -60,9 +66,10 @@
 
 <div
 	class="p5-frame-container relative flex h-full w-full items-center justify-center overflow-hidden bg-[#0d0d10] {className}"
-	class:is-thumbnail={isThumbnail}
+	class:is-compact={effectiveMode !== 'interactive'}
 >
 	{#if currentSrcdoc}
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 		<iframe
 			bind:this={iframeEl}
 			srcdoc={currentSrcdoc}
@@ -70,7 +77,8 @@
 			allow="autoplay"
 			title={sketch.slug || 'p5-sketch'}
 			onload={handleLoad}
-			class="h-full w-full border-none transition-opacity duration-300"
+			tabindex={effectiveMode !== 'interactive' ? -1 : 0}
+			class="h-full w-full border-none transition-opacity duration-300 {effectiveMode !== 'interactive' ? 'pointer-events-none' : 'pointer-events-auto'}"
 			class:opacity-0={!isLoaded}
 			class:opacity-100={isLoaded}
 		></iframe>
