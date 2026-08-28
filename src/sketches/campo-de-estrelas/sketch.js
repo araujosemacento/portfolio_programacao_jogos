@@ -5,11 +5,10 @@ let estrelas = [];
 let slider;
 
 function setup() {
-	slider = createSlider(0, 2, 1);
-	slider.position(300, 475);
-	slider.style('width', '300px');
+	createCanvas(windowWidth, windowHeight);
 
-	createCanvas(500, 500);
+	slider = createSlider(0, 2, 1);
+	posicionarSlider();
 
 	for (let i = 0; i < (width + height) / 2; i++) {
 		estrelas[i] = new Estrela();
@@ -24,6 +23,18 @@ function draw() {
 		estrelas[i].mostrar();
 		estrelas[i].atualizar();
 	}
+}
+
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+	posicionarSlider();
+}
+
+function posicionarSlider() {
+	if (!slider) return;
+	const sliderWidth = min(280, width - 40);
+	slider.style('width', sliderWidth + 'px');
+	slider.position((width - sliderWidth) / 2, height - 44);
 }
 
 function Estrela() {

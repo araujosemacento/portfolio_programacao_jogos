@@ -1,5 +1,6 @@
 <script>
 	import { onDestroy } from 'svelte';
+	import { base } from '$app/paths';
 	import { generateRunnerHtml } from '$lib/sketches/runner-html.js';
 
 	/** 
@@ -34,7 +35,8 @@
 				slug: sketch.slug || 'sketch',
 				files: sketch.files || [],
 				isThumbnail,
-				enableSound: Boolean(sketch.enableSound)
+				enableSound: Boolean(sketch.enableSound),
+				basePath: base
 			});
 		}, debounceMs);
 
@@ -64,7 +66,8 @@
 		<iframe
 			bind:this={iframeEl}
 			srcdoc={currentSrcdoc}
-			sandbox="allow-scripts"
+			sandbox="allow-scripts allow-same-origin"
+			allow="autoplay"
 			title={sketch.slug || 'p5-sketch'}
 			onload={handleLoad}
 			class="h-full w-full border-none transition-opacity duration-300"

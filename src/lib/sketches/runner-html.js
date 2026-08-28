@@ -9,6 +9,7 @@ import { protectLoops } from './loop-guard.js';
  * @param {boolean} [params.isThumbnail=false] Se a renderização é para thumbnail de card
  * @param {boolean} [params.useLoopGuard=true] Se deve aplicar sentinela contra loops infinitos
  * @param {boolean} [params.enableSound=false] Se deve incluir p5.sound.min.js
+ * @param {string} [params.basePath=''] Caminho base da aplicação (ex: /portfolio_programacao_jogos para GitHub Pages)
  * @returns {string} Código HTML completo para o iframe srcdoc
  */
 export function generateRunnerHtml({
@@ -16,8 +17,14 @@ export function generateRunnerHtml({
 	files = [],
 	isThumbnail = false,
 	useLoopGuard = true,
-	enableSound = false
+	enableSound = false,
+	basePath = ''
 }) {
+	// Normaliza basePath garantindo que não tenha barra final se existir
+	const cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+	const p5ScriptUrl = `${cleanBase}/p5.min.js`;
+	const p5SoundScriptUrl = `${cleanBase}/p5.sound.min.js`;
+
 	// Processa o código dos arquivos com loop-guard se habilitado
 	const processedScripts = files
 		.filter((f) => f.name.endsWith('.js'))
@@ -33,6 +40,7 @@ export function generateRunnerHtml({
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>${slug}</title>
+	${cleanBase ? `<base href="${cleanBase}/">` : ''}
 	<style>
 		* {
 			box-sizing: border-box;
@@ -66,12 +74,8 @@ export function generateRunnerHtml({
 		`
 				: `
 		canvas {
-			max-width: 100%;
-			max-height: 100%;
-			height: auto !important;
 			display: block;
 			border-radius: 12px;
-			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 		}
 		`
 		}
@@ -107,9 +111,9 @@ export function generateRunnerHtml({
 			line-height: 1.5;
 		}
 	</style>
-	<!-- Carregamento do p5.js -->
-	<script src="/p5.min.js"></script>
-	${enableSound ? '<script src="/p5.sound.min.js"></script>' : ''}
+	<!-- Carregamento do p5.js com caminho base compatível com GitHub Pages -->
+	<script src="${p5ScriptUrl}"></script>
+	${enableSound ? `<script src="${p5SoundScriptUrl}"></script>` : ''}
 </head>
 <body>
 	<div id="error-overlay">
