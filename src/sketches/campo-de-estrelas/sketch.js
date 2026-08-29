@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
 // @ts-nocheck
+/* eslint-disable */
+
 let estrelas = [];
 let slider;
 

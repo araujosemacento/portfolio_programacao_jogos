@@ -53,6 +53,15 @@
 
 	function handleLoad() {
 		isLoaded = true;
+		if (effectiveMode === 'interactive' && iframeEl) {
+			setTimeout(() => {
+				try {
+					iframeEl?.focus();
+					iframeEl?.contentWindow?.focus();
+				// eslint-disable-next-line no-unused-vars
+				} catch (e) { /* empty */ }
+			}, 50);
+		}
 	}
 
 	onDestroy(() => {

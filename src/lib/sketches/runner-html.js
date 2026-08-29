@@ -233,7 +233,29 @@ export function generateRunnerHtml({
 		Object.defineProperty(window, 'keyReleased', { get: function() { return function(){}; }, set: function() {}, configurable: true });
 		Object.defineProperty(window, 'keyTyped', { get: function() { return function(){}; }, set: function() {}, configurable: true });
 		`
-				: ''
+				: `
+		// No modo interativo, foca o canvas e a janela para captura imediata de ações de teclado
+		function _focusCanvas() {
+			try {
+				window.focus();
+				var canvas = document.querySelector('canvas');
+				if (canvas) {
+					canvas.setAttribute('tabindex', '0');
+					canvas.style.outline = 'none';
+					canvas.focus();
+				}
+			} catch(e) {}
+		}
+
+		window.addEventListener('load', function() {
+			_focusCanvas();
+			setTimeout(_focusCanvas, 100);
+		});
+
+		window.addEventListener('mousedown', function() {
+			_focusCanvas();
+		});
+		`
 		}
 	</script>
 
