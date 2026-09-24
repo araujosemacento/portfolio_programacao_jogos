@@ -5,11 +5,12 @@
 
 	/** 
 	 * @type {{
-	 *   sketch: { slug?: string, files?: Array<{ name: string, code: string }>, enableSound?: boolean },
+	 *   sketch: { slug?: string, files?: Array<{ name: string, code: string }>, enableSound?: boolean, enableRealtime?: boolean },
 	 *   mode?: 'thumbnail' | 'preview' | 'interactive',
 	 *   isThumbnail?: boolean,
 	 *   className?: string,
-	 *   debounceMs?: number
+	 *   debounceMs?: number,
+	 *   roomCode?: string
 	 * }} 
 	 */
 	let {
@@ -17,7 +18,8 @@
 		mode,
 		isThumbnail = false,
 		className = '',
-		debounceMs = 300
+		debounceMs = 300,
+		roomCode = ''
 	} = $props();
 
 	// Normaliza o modo efetivo
@@ -35,6 +37,7 @@
 		if (!sketch || !sketch.files) return;
 
 		const currentTargetMode = effectiveMode;
+		const currentRoom = roomCode;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(() => {
 			currentSrcdoc = generateRunnerHtml({
@@ -42,6 +45,8 @@
 				files: sketch.files || [],
 				mode: currentTargetMode,
 				enableSound: Boolean(sketch.enableSound),
+				enableRealtime: Boolean(sketch.enableRealtime),
+				roomCode: currentRoom,
 				basePath: base
 			});
 		}, debounceMs);

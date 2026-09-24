@@ -141,6 +141,8 @@ export function getAllSketches() {
 			// @ts-ignore
 			enableSound: Boolean(meta.enableSound),
 			// @ts-ignore
+			enableRealtime: Boolean(meta.enableRealtime),
+			// @ts-ignore
 			thumbnailUrl: thumbnail || meta.thumbnail || null,
 			files: orderedJsFiles,
 			codeTabs,
