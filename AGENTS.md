@@ -1,4 +1,4 @@
-# AGENTS.md — Documentação do Projeto & Leveling Out
+# AGENTS.md: Documentação do Projeto & Leveling Out
 
 Este documento serve como guia central para desenvolvedores e agentes autônomos que operam neste repositório. Ele detalha a visão conceitual do jogo **Leveling Out**, o funcionamento de seu *game loop*, a arquitetura técnica adotada e o roteiro (*roadmap*) de desenvolvimento.
 
@@ -30,7 +30,7 @@ O fluxo tem início quando o usuário acessa a plataforma em seu dispositivo e c
 Na fase ativa, o sistema sorteia aleatoriamente um membro da equipe da vez para atuar como Codificador e preenche exclusivamente em sua tela um tubo de ensaio com nível percentual oculto (como 70%), invisível aos demais jogadores. Esse integrante analisa a carta de espectro e digita uma pista associativa contextualizada (ex.: "Keanu Reeves"), enviando-a ao seu parceiro de equipe; cabe ao Palpiteiro decodificar o raciocínio do colega e deslizar o marcador analógico até onde estima estar o líquido no tubo. Finalizado o palpite, ocorre a revelação simultânea para todos os participantes: um algoritmo calcula a margem de erro por proximidade, convertendo exatidão em pontuação no placar, ao passo que erros grosseiros resultam em zero pontos e transferem o *momentum* competitivo diretamente para o início do turno da equipe adversária.
 
 ### Parágrafo 3: Progressão, Ritmo de Corrida e Conclusão com Revanche
-A partida se desenvolve em turnos estritamente alternados entre as duas equipes, estruturando uma corrida dinâmica rumo à pontuação-alvo predeterminada, em que cada acerto ou erro do rival atua como regulador de tensão e alívio no canal de fluxo dos competidores. O desfecho da disputa é alcançado no instante em que uma das equipes atinge a pontuação máxima, disparando a tela de vitória que consagra os campeões e exibe um painel de "Métricas de Sintonia" — destacando os palpites milimetricamente certeiros e as gafes conceituais mais cômicas da partida. Essa interface final disponibiliza ações imediatas para iniciar uma Revanche mantendo as mesmas composições ou retornar ao lobby principal, fechando o ciclo e estimulando a rejogabilidade.
+A partida se desenvolve em turnos estritamente alternados entre as duas equipes, estruturando uma corrida dinâmica rumo à pontuação-alvo predeterminada, em que cada acerto ou erro do rival atua como regulador de tensão e alívio no canal de fluxo dos competidores. O desfecho da disputa é alcançado no instante em que uma das equipes atinge a pontuação máxima, disparando a tela de vitória que consagra os campeões e exibe um painel de "Métricas de Sintonia", destacando os palpites milimetricamente certeiros e as gafes conceituais mais cômicas da partida. Essa interface final disponibiliza ações imediatas para iniciar uma Revanche mantendo as mesmas composições ou retornar ao lobby principal, fechando o ciclo e estimulando a rejogabilidade.
 
 ---
 
@@ -75,7 +75,7 @@ src/sketches/leveling-out/
 
 ## 5. Roadmap de Desenvolvimento
 
-### Fase 1: Fundação & Prova de Conceito (Concluído ✅)
+### Fase 1: Fundação & Prova de Conceito (Concluído)
 - [x] Definição conceitual e validação do game loop via Pitch.
 - [x] Implementação de slugs aninhados no SvelteKit (`/projeto/[slug]/[sala]`) compatíveis com SPA estática no GitHub Pages.
 - [x] Atualização do runner do p5.js para suportar passagem de sala e bibliotecas de rede externas.
@@ -85,7 +85,7 @@ src/sketches/leveling-out/
 - [x] Modularização completa do sketch p5.js (`crypto`, `network`, `game`, `ui`, `sketch`).
 - [x] Definição arquitetural do backend: PocketBase com Tailscale/Tunnel.
 
-### Fase 2: Integração com PocketBase & Infraestrutura (A Fazer 🚧)
+### Fase 2: Integração com PocketBase & Infraestrutura (A Fazer)
 - [ ] Instalar o binário do PocketBase na máquina servidora.
 - [ ] Criar as coleções mínimas efêmeras:
   - `salas`: `codigo`, `fase`, `rodada`, `espectro`, `meta_nivel`, `dica`, `palpite`, `placar_a`, `placar_b`.
@@ -94,7 +94,7 @@ src/sketches/leveling-out/
 - [ ] Expor a porta do PocketBase via **Tailscale Funnel** ou **Cloudflare Tunnel**.
 - [ ] Adaptar o `network.js` da sketch para consumir as assinaturas SSE do PocketBase.
 
-### Fase 3: Gameplay Completa do Leveling Out (A Fazer 🚧)
+### Fase 3: Gameplay Completa do Leveling Out (A Fazer)
 - [ ] **Renderização do Tubo de Ensaio:**
   - Animação do líquido graduado de 0% a 100% com menisco e borbulhas em p5.js.
   - Modo oculto: líquido visível apenas na tela do Codificador sorteado.
@@ -113,3 +113,17 @@ src/sketches/leveling-out/
   - Rotação automática de quem codifica e quem palpita a cada rodada.
 - [ ] **Tela de Vitória & Métricas de Sintonia:**
   - Painel final com destaques da partida e atalhos para Revanche rápida.
+
+---
+
+## 6. Diretrizes Estritas de Front-end e Estilo Visual
+
+É **expressamente proibido** incluir no front-end:
+1. **Emojis**: Nenhuma utilização de emojis em títulos, botões, feedbacks, status ou canvas.
+2. **Cards**: Não utilizar elementos genéricos com estilo de "card" a menos que haja um comando explícito no prompt para tal.
+3. **Travessões (–, —) e suas variações**: Proibido o uso de travessões ou hífen como separador de títulos e textos de interface.
+4. **Bullet Points e Indicadores Circulares**:
+   - Proibido o uso de caracteres de ponto como "●", "○", "•", "▪", "✓".
+   - Proibido o uso de elementos circulares decorativos (como classes `rounded-full` em spans de status ou pings de presença).
+
+Qualquer exceção requer comando explícito e direto no prompt do usuário.

@@ -51,20 +51,20 @@ class UIRenderer {
 
 		if (!network.isConnected) {
 			fill(239, 68, 68);
-			text('● DESCONECTADO', 75, 28);
+			text('DESCONECTADO', 65, 28);
 		} else if (!opponentOnline) {
 			fill(245, 158, 11);
-			text('● 1 JOGADOR NA SALA', 85, 28);
+			text('1 JOGADOR NA SALA', 75, 28);
 		} else {
 			fill(16, 185, 129);
-			text('● 2 CONECTADOS (E2EE)', 95, 28);
+			text('2 CONECTADOS (E2EE)', 85, 28);
 		}
 
 		// Identificador da Sala
 		fill(212, 212, 216);
 		textSize(12);
 		textStyle(NORMAL);
-		text(`🔒 Sala: ${network.roomCode}`, width / 2, 28);
+		text(`Sala: ${network.roomCode}`, width / 2, 28);
 
 		// ID persistente do jogador
 		fill(161, 161, 170);
@@ -100,23 +100,17 @@ class UIRenderer {
 		fill(255);
 		textSize(26);
 		textStyle(BOLD);
-		text('Aguardando Jogador...', width / 2, cy - 40);
+		text('Aguardando Jogador...', width / 2, cy - 30);
 
 		fill(161, 161, 170);
 		textSize(14);
 		textStyle(NORMAL);
-		text('Abra esta mesma sala em outro celular ou janela:', width / 2, cy);
+		text('Abra esta mesma sala em outro celular ou janela:', width / 2, cy + 10);
 
 		fill(244, 63, 94);
 		textSize(16);
 		textStyle(BOLD);
-		text(`Código: ${network.roomCode}`, width / 2, cy + 30);
-
-		// Efeito de pulso suave
-		const pulse = (sin(frameCount * 0.08) + 1) * 0.5;
-		fill(244, 63, 94, 100 + pulse * 155);
-		noStroke();
-		circle(width / 2, cy + 80, 16 + pulse * 8);
+		text(`Código: ${network.roomCode}`, width / 2, cy + 45);
 		pop();
 	}
 
@@ -130,13 +124,13 @@ class UIRenderer {
 		text(game.statusMessage, width / 2, cy);
 
 		const moves = [
-			{ id: 'pedra', label: 'Pedra', icon: '🪨' },
-			{ id: 'papel', label: 'Papel', icon: '📄' },
-			{ id: 'tesoura', label: 'Tesoura', icon: '✂️' }
+			{ id: 'pedra', label: 'Pedra' },
+			{ id: 'papel', label: 'Papel' },
+			{ id: 'tesoura', label: 'Tesoura' }
 		];
 
 		const btnW = min(130, width * 0.26);
-		const btnH = 140;
+		const btnH = 100;
 		const spacing = min(24, width * 0.04);
 		const totalW = moves.length * btnW + (moves.length - 1) * spacing;
 		const startX = width / 2 - totalW / 2 + btnW / 2;
@@ -176,21 +170,17 @@ class UIRenderer {
 
 			rect(bx, by, btnW, btnH, 16);
 
-			// Ícone
-			textSize(40);
-			text(m.icon, bx, by - 16);
-
-			// Texto
-			textSize(15);
+			// Rótulo da Jogada
+			textSize(18);
 			textStyle(BOLD);
 			fill(isSelected ? 255 : 228);
 			noStroke();
-			text(m.label, bx, by + 32);
+			text(m.label, bx, isSelected ? by - 10 : by);
 
 			if (isSelected) {
 				fill(255);
 				textSize(11);
-				text('✓ SUA ESCOLHA', bx, by + 52);
+				text('SUA ESCOLHA', bx, by + 18);
 			}
 			pop();
 		}
@@ -200,10 +190,10 @@ class UIRenderer {
 		textSize(13);
 		if (game.opponentMove) {
 			fill(16, 185, 129);
-			text('● Oponente já fez a jogada!', width / 2, statusY);
+			text('Oponente já fez a jogada!', width / 2, statusY);
 		} else {
 			fill(245, 158, 11);
-			text('○ Aguardando jogada do oponente...', width / 2, statusY);
+			text('Aguardando jogada do oponente...', width / 2, statusY);
 		}
 		pop();
 	}
@@ -216,16 +206,16 @@ class UIRenderer {
 		textStyle(BOLD);
 		if (game.roundResult === 'VITÓRIA') {
 			fill(16, 185, 129);
-			text('VOCÊ VENCEU! 🎉', width / 2, cy - 30);
+			text('VOCÊ VENCEU!', width / 2, cy - 30);
 		} else if (game.roundResult === 'DERROTA') {
 			fill(239, 68, 68);
-			text('VOCÊ PERDEU! 😢', width / 2, cy - 30);
+			text('VOCÊ PERDEU!', width / 2, cy - 30);
 		} else {
 			fill(245, 158, 11);
-			text('EMPATE! 🤝', width / 2, cy - 30);
+			text('EMPATE!', width / 2, cy - 30);
 		}
 
-		const iconMap = { pedra: '🪨 Pedra', papel: '📄 Papel', tesoura: '✂️ Tesoura' };
+		const iconMap = { pedra: 'Pedra', papel: 'Papel', tesoura: 'Tesoura' };
 
 		fill(244, 63, 94);
 		textSize(18);
@@ -260,7 +250,7 @@ class UIRenderer {
 		fill(255);
 		textSize(16);
 		textStyle(BOLD);
-		text('Próxima Rodada ➔', width / 2, btnY);
+		text('Próxima Rodada', width / 2, btnY);
 		pop();
 	}
 

@@ -57,12 +57,8 @@
 				</div>
 			</div>
 		{:else}
-			<!-- Header na página inicial: título com ponto de destaque neon p5 rosa/vermelho -->
+			<!-- Header na página inicial: título com fonte Heading -->
 			<div class="flex items-center gap-2.5">
-				<span
-					class="inline-block h-2.5 w-2.5 rounded-full bg-[#ed225d] shadow-[0_0_10px_#ed225d]"
-					aria-hidden="true"
-				></span>
 				<h1 class="font-heading text-lg font-bold tracking-tight text-zinc-100 sm:text-xl">
 					Programação para Jogos I
 				</h1>

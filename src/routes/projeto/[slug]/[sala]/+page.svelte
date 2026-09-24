@@ -34,10 +34,6 @@
 	<!-- Barra de Informações da Sala Conectada -->
 	<div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-500/30 bg-rose-950/20 px-4 py-3 backdrop-blur-sm">
 		<div class="flex items-center gap-2">
-			<span class="relative flex h-2.5 w-2.5">
-				<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-				<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-			</span>
 			<span class="font-heading text-sm font-semibold text-zinc-200">
 				Sala Ativa: <strong class="font-code text-rose-400">{roomCode}</strong>
 			</span>
