@@ -1,15 +1,17 @@
 # Diretrizes de Arquitetura: Leveling Out & Projetos p5.js
 
 ## 1. Prioridade do Motor Visual (p5.js First)
-- Sempre que viável, a lógica de renderização, visualizações dinâmicas, física/fluidos, animações de feedback e inputs espaciais (arrastar slider, botões do jogo) devem ser desenvolvidos diretamente no canvas do **p5.js**.
-- O SvelteKit atua como casca de apoio (roteamento de páginas, metadados, modais de código e inicialização de rede).
+- A lógica de renderização, visualizações dinâmicas, física/fluidos (tubo de ensaio), animações de feedback e inputs espaciais (slider analógico, botões de jogada) devem ser desenvolvidos diretamente no canvas do **p5.js**.
+- O SvelteKit atua como casca de apoio (roteamento de slugs, inicialização de clientes, metadados e modais de código).
 
 ## 2. Compatibilidade com Hospedagem Estática (GitHub Pages)
-- O projeto deve se manter 100% estático (`@sveltejs/adapter-static`).
-- Não assumir a presença de um servidor Node/Express backend próprio para endpoints de API dinâmicos ou servidores de socket dedicados.
-- Rotas dinâmicas como salas e identificadores devem levar em conta o fallback do GitHub Pages (`404.html`) ou o uso de query/hash parameters.
+- O front-end do projeto deve se manter 100% estático (`@sveltejs/adapter-static`).
+- O suporte a salas dinâmicas deve utilizar slugs aninhados (`/projeto/[slug]/[sala]`) operando client-side via fallback da SPA (`404.html`), garantindo carregamento direto mesmo sem pré-renderização no build.
 
-## 3. Sincronização Multiplayer Serverless / Peer-to-Peer
-- Para multiplayer em tempo real em páginas estáticas, priorizar:
-  - **WebRTC DataChannels** (ex: PeerJS ou Trystero) para comunicação P2P direta entre navegadores sem custo de infraestrutura.
-  - **BaaS Realtime** (ex: Supabase Realtime Broadcast ou Firebase Realtime) quando for necessária persistência de estado ou presença resiliente.
+## 3. Backend em Tempo Real: PocketBase Autohospedado
+- **Motor de Backend**: **PocketBase** (binário único em Go + SQLite embarcado), selecionado por seu consumo de memória ínfimo (~15-30 MB de RAM) e facilidade de manutenção.
+- **Túnel e Exposição**: O servidor local é exposto para a internet através de um túnel reverso com terminação TLS (como **Tailscale Funnel** ou **Cloudflare Tunnel**), permitindo que conexões externas (incluindo 4G/5G com CGNAT) conectem-se via SSE (*Server-Sent Events*) e REST sem necessidade de abrir portas no roteador.
+- **Efemeridade e Privacidade por Design**:
+  - Usuários são estritamente **anônimos**, sem cadastro de contas, senhas ou persistência de identidade de longo prazo.
+  - A persistência de dados é **efêmera**: existe apenas enquanto a sala e a partida estiverem em andamento para permitir reconexões de rede tolerantes via `sessionStorage`.
+  - O banco SQLite deve contar com **rotinas automáticas de higienização** (`pb_hooks/cleanup.pb.js`) com agendamento (cron) para expirar e deletar salas inativas, garantindo uso zero de espaço desnecessário em disco.

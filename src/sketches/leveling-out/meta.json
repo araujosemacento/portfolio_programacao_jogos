@@ -1,6 +1,7 @@
 {
 	"title": "Leveling Out (PoC)",
-	"description": "Prova de conceito multiplayer: conexão entre redes distintas e disputa de Pedra, Papel e Tesoura.",
+	"description": "Prova de conceito multiplayer: conexão entre redes distintas com criptografia E2EE, persistência de sessão e Pedra, Papel e Tesoura.",
 	"accentColor": "#ed225d",
-	"enableRealtime": true
+	"enableRealtime": true,
+	"filesOrder": ["crypto.js", "network.js", "game.js", "ui.js", "sketch.js"]
 }
