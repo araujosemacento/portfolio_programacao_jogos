@@ -3,7 +3,7 @@
 
 /**
  * Leveling Out - Ponto de Entrada Principal (Sketch p5.js)
- * Orquestra os módulos: E2EEService, NetworkManager, GameEngine e UIRenderer.
+ * Orquestra os módulos: NetworkManager, GameEngine e UIRenderer.
  */
 
 let roomCode = 'sala-padrao';
@@ -29,7 +29,7 @@ function setup() {
 		(status) => game.setStatus(status)
 	);
 
-	// Inicia a conexão segura e derivação criptográfica
+	// Inicia a conexão com o PocketBase
 	network.connect();
 }
 
@@ -64,8 +64,7 @@ function handleInput(x, y) {
 		}
 	} else if (game.state === 'RESULTADO') {
 		if (ui.isNextRoundClicked(x, y)) {
-			game.roundId += 1;
-			game.startNewRound(network, true);
+			game.startNewRound(network);
 		}
 	}
 }
@@ -76,7 +75,6 @@ function keyPressed() {
 		if (key === '2') game.chooseMove('papel', network);
 		if (key === '3') game.chooseMove('tesoura', network);
 	} else if (game.state === 'RESULTADO' && key === ' ') {
-		game.roundId += 1;
-		game.startNewRound(network, true);
+		game.startNewRound(network);
 	}
 }

@@ -2,6 +2,7 @@
 	import { onDestroy } from 'svelte';
 	import { base } from '$app/paths';
 	import { generateRunnerHtml } from '$lib/sketches/runner-html.js';
+	import { getBackendUrl } from '$lib/config/backend.js';
 
 	/** 
 	 * @type {{
@@ -47,7 +48,8 @@
 				enableSound: Boolean(sketch.enableSound),
 				enableRealtime: Boolean(sketch.enableRealtime),
 				roomCode: currentRoom,
-				basePath: base
+				basePath: base,
+				backendUrl: getBackendUrl()
 			});
 		}, debounceMs);
 

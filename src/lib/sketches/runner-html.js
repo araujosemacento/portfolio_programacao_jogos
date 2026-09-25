@@ -10,9 +10,10 @@ import { protectLoops } from './loop-guard.js';
  * @param {boolean} [params.isThumbnail] Legado: se true, define mode como 'thumbnail'
  * @param {boolean} [params.useLoopGuard=true] Se deve aplicar sentinela contra loops infinitos
  * @param {boolean} [params.enableSound=false] Se deve incluir p5.sound.min.js
- * @param {boolean} [params.enableRealtime=false] Se deve incluir cliente de rede mqtt.min.js
+ * @param {boolean} [params.enableRealtime=false] Se deve incluir cliente PocketBase para realtime
  * @param {string} [params.roomCode=''] Código da sala para sincronização multiplayer
  * @param {string} [params.basePath=''] Caminho base da aplicação (ex: /portfolio_programacao_jogos para GitHub Pages)
+ * @param {string} [params.backendUrl=''] URL do servidor PocketBase (DEV ou PROD)
  * @returns {string} Código HTML completo para o iframe srcdoc
  */
 export function generateRunnerHtml({
@@ -24,7 +25,8 @@ export function generateRunnerHtml({
 	enableSound = false,
 	enableRealtime = false,
 	roomCode = '',
-	basePath = ''
+	basePath = '',
+	backendUrl = ''
 }) {
 	// Normaliza o modo de execução
 	/** @type {'thumbnail' | 'preview' | 'interactive'} */
@@ -37,7 +39,7 @@ export function generateRunnerHtml({
 	const cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
 	const p5ScriptUrl = `${cleanBase}/p5.min.js`;
 	const p5SoundScriptUrl = `${cleanBase}/p5.sound.min.js`;
-	const mqttScriptUrl = `${cleanBase}/mqtt.min.js`;
+	const pocketbaseScriptUrl = `${cleanBase}/pocketbase.umd.js`;
 
 	// Processa o código dos arquivos com loop-guard se habilitado
 	const processedScripts = files
@@ -128,7 +130,7 @@ export function generateRunnerHtml({
 	<!-- Carregamento do p5.js com caminho base compatível com GitHub Pages -->
 	<script src="${p5ScriptUrl}"></script>
 	${soundEnabled ? `<script src="${p5SoundScriptUrl}"></script>` : ''}
-	${realtimeEnabled ? `<script src="${mqttScriptUrl}"></script>` : ''}
+	${realtimeEnabled ? `<script src="${pocketbaseScriptUrl}"></script>` : ''}
 </head>
 <body>
 	<div id="error-overlay">
@@ -268,6 +270,7 @@ export function generateRunnerHtml({
 
 	<!-- Injeção dos Scripts do Sketch e Dados de Sala -->
 	<script>
+	window.__BACKEND_URL__ = ${JSON.stringify(backendUrl || 'http://localhost:8090')};
 	window.__ROOM_CODE__ = ${JSON.stringify(roomCode || '')};
 	try {
 ${processedScripts}

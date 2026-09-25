@@ -3,7 +3,7 @@
 
 /**
  * Módulo de Lógica de Jogo e Máquina de Estados
- * Controla turnos, regras de Pedra-Papel-Tesoura e pontuação.
+ * Controla turnos, regras de Pedra, Papel e Tesoura e sincronização de pontuação via PocketBase.
  */
 
 class GameEngine {
@@ -55,36 +55,57 @@ class GameEngine {
 	}
 
 	handleMessage(data, network) {
-		if (data.type === 'PRESENCE') {
-			network.send({ type: 'PRESENCE_ACK', id: network.myId });
+		if (data.type === 'OPPONENT_ONLINE') {
 			if (this.state === 'CONECTANDO' || this.state === 'AGUARDANDO_OPONENTE') {
 				this.startNewRound(network, false);
 			}
-		} else if (data.type === 'PRESENCE_ACK') {
-			if (this.state === 'CONECTANDO' || this.state === 'AGUARDANDO_OPONENTE') {
-				this.startNewRound(network, false);
+		} else if (data.type === 'SALA_UPDATE') {
+			const sala = data.sala;
+			if (network.myEquipe === 'A') {
+				this.myScore = sala.placar_a || 0;
+				this.opponentScore = sala.placar_b || 0;
+			} else {
+				this.myScore = sala.placar_b || 0;
+				this.opponentScore = sala.placar_a || 0;
 			}
-		} else if (data.type === 'MOVE') {
-			if (data.roundId === this.roundId) {
-				this.opponentMove = data.move;
-				this.checkRoundCompletion();
+			if (sala.rodada_atual && sala.rodada_atual > this.roundId && this.state !== 'ESCOLHENDO') {
+				this.roundId = sala.rodada_atual;
 			}
-		} else if (data.type === 'RESTART') {
-			this.roundId = data.roundId;
-			this.startNewRound(network, false);
+			this.saveState();
+		} else if (data.type === 'PPT_RESOLVIDO') {
+			const res = data.data;
+			const myTeam = network.myEquipe || 'A';
+			const opponentTeam = myTeam === 'A' ? 'B' : 'A';
+
+			this.myMove = (res.lances && res.lances[myTeam]) || this.myMove;
+			this.opponentMove = (res.lances && res.lances[opponentTeam]) || null;
+
+			if (res.vencedor === 'EMPATE') {
+				this.roundResult = 'EMPATE';
+				this.statusMessage = 'Empate!';
+			} else if (res.vencedor === myTeam) {
+				this.roundResult = 'VITÓRIA';
+				this.statusMessage = 'Você venceu!';
+			} else {
+				this.roundResult = 'DERROTA';
+				this.statusMessage = 'Oponente venceu!';
+			}
+
+			this.state = 'RESULTADO';
+			this.saveState();
 		}
 	}
 
-	startNewRound(network, broadcast = true) {
+	startNewRound(network) {
 		this.myMove = null;
 		this.opponentMove = null;
 		this.roundResult = null;
+		if (network && network.salaRecord && network.salaRecord.rodada_atual) {
+			this.roundId = network.salaRecord.rodada_atual;
+		}
 		this.state = 'ESCOLHENDO';
 		this.statusMessage = 'Faça sua jogada!';
-
-		if (broadcast && network) {
-			network.send({ type: 'RESTART', id: network.myId, roundId: this.roundId });
-		}
+		this.saveState();
 	}
 
 	chooseMove(move, network) {
@@ -94,37 +115,8 @@ class GameEngine {
 		this.state = 'AGUARDANDO_OPONENTE_JOGADA';
 		this.statusMessage = 'Jogada enviada! Aguardando o oponente...';
 
-		network.send({
-			type: 'MOVE',
-			id: network.myId,
-			move: this.myMove,
-			roundId: this.roundId
-		});
-
-		this.checkRoundCompletion();
-	}
-
-	checkRoundCompletion() {
-		if (this.myMove && this.opponentMove) {
-			this.calculateResult();
-			this.state = 'RESULTADO';
-			this.saveState();
-		}
-	}
-
-	calculateResult() {
-		if (this.myMove === this.opponentMove) {
-			this.roundResult = 'EMPATE';
-		} else if (
-			(this.myMove === 'pedra' && this.opponentMove === 'tesoura') ||
-			(this.myMove === 'papel' && this.opponentMove === 'pedra') ||
-			(this.myMove === 'tesoura' && this.opponentMove === 'papel')
-		) {
-			this.roundResult = 'VITÓRIA';
-			this.myScore += 1;
-		} else {
-			this.roundResult = 'DERROTA';
-			this.opponentScore += 1;
+		if (network) {
+			network.enviarLance(this.myMove, this.roundId);
 		}
 	}
 }

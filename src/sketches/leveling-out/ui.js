@@ -57,7 +57,7 @@ class UIRenderer {
 			text('1 JOGADOR NA SALA', 75, 28);
 		} else {
 			fill(16, 185, 129);
-			text('2 CONECTADOS (E2EE)', 85, 28);
+			text('2 CONECTADOS (POCKETBASE)', 95, 28);
 		}
 
 		// Identificador da Sala

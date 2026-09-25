@@ -64,8 +64,7 @@ O código em [src/sketches/leveling-out/](./src/sketches/leveling-out/) foi desa
 ```text
 src/sketches/leveling-out/
 ├── meta.json     <-- Metadados, tags de realtime e ordem das abas (filesOrder)
-├── crypto.js     <-- Criptografia de ponta a ponta (AES-GCM 256 bits via Web Crypto)
-├── network.js    <-- Gerenciador de conexão, mensageria e sessão (sessionStorage)
+├── network.js    <-- Gerenciador de conexão PocketBase e mensageria SSE/REST
 ├── game.js       <-- Máquina de estados do jogo, regras e cálculo de pontos
 ├── ui.js         <-- Renderizador visual 100% p5.js (cabeçalho, placar, botões, estados)
 └── sketch.js     <-- Ponto de entrada leve (< 80 linhas) de orquestração p5.js
@@ -85,14 +84,16 @@ src/sketches/leveling-out/
 - [x] Modularização completa do sketch p5.js (`crypto`, `network`, `game`, `ui`, `sketch`).
 - [x] Definição arquitetural do backend: PocketBase com Tailscale/Tunnel.
 
-### Fase 2: Integração com PocketBase & Infraestrutura (A Fazer)
-- [ ] Instalar o binário do PocketBase na máquina servidora.
-- [ ] Criar as coleções mínimas efêmeras:
-  - `salas`: `codigo`, `fase`, `rodada`, `espectro`, `meta_nivel`, `dica`, `palpite`, `placar_a`, `placar_b`.
-  - `jogadores`: `sala_id`, `player_id`, `equipe`, `papel` (codificador/palpiteiro), `last_seen`.
-- [ ] Criar script de higienização periódica em `pb_hooks/cleanup.pb.js` com `cronAdd` para apagar salas inativas.
+### Fase 2: Integração com PocketBase & Infraestrutura
+- [x] Instalar o binário do PocketBase na máquina servidora.
+- [x] Criar as coleções efêmeras particionadas em migrações declarativas:
+  - `salas`: `codigo`, `fase`, `rodada_atual`, `equipe_ativa`, `placar_a`, `placar_b`, `vencedor`.
+  - `rodadas`: `sala_codigo`, `numero`, `equipe`, `fase_rodada`, `espectro_esquerda`, `espectro_direita`, `meta_oculta`, `dica`, `palpite`, `pontos`.
+  - `jogadores`: `sala_codigo`, `player_id`, `nome`, `equipe`, `papel`, `last_seen`.
+- [x] Criar script de higienização periódica em `pb_hooks/cleanup.pb.js` com `cronAdd` para apagar salas, jogadores e rodadas inativas em cascata.
+- [x] Criar validações de integridade, sorteio de meta e cálculo de pontuação em `pb_hooks/game_rules.pb.js`.
+- [x] Adaptar o `network.js` da sketch para consumir as assinaturas SSE e REST do PocketBase (`salas`, `jogadores`, `/api/ppt/lance`).
 - [ ] Expor a porta do PocketBase via **Tailscale Funnel** ou **Cloudflare Tunnel**.
-- [ ] Adaptar o `network.js` da sketch para consumir as assinaturas SSE do PocketBase.
 
 ### Fase 3: Gameplay Completa do Leveling Out (A Fazer)
 - [ ] **Renderização do Tubo de Ensaio:**
