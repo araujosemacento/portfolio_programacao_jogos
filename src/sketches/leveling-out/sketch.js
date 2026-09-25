@@ -41,6 +41,9 @@ function draw() {
 	// Atualiza heartbeat de presença
 	network.updateHeartbeat();
 
+	// Atualiza transições e timers de jogo
+	game.update();
+
 	// Renderiza a interface
 	ui.render(game, network);
 }

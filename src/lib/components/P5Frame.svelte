@@ -11,7 +11,8 @@
 	 *   isThumbnail?: boolean,
 	 *   className?: string,
 	 *   debounceMs?: number,
-	 *   roomCode?: string
+	 *   roomCode?: string,
+	 *   playerId?: string
 	 * }} 
 	 */
 	let {
@@ -20,7 +21,8 @@
 		isThumbnail = false,
 		className = '',
 		debounceMs = 300,
-		roomCode = ''
+		roomCode = '',
+		playerId = ''
 	} = $props();
 
 	// Normaliza o modo efetivo
@@ -39,6 +41,7 @@
 
 		const currentTargetMode = effectiveMode;
 		const currentRoom = roomCode;
+		const currentPlayerId = playerId;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(() => {
 			currentSrcdoc = generateRunnerHtml({
@@ -49,7 +52,8 @@
 				enableRealtime: Boolean(sketch.enableRealtime),
 				roomCode: currentRoom,
 				basePath: base,
-				backendUrl: getBackendUrl()
+				backendUrl: getBackendUrl(),
+				playerId: currentPlayerId
 			});
 		}, debounceMs);
 

@@ -1,4 +1,5 @@
 <script>
+	import Icon from '@iconify/svelte';
 	import P5Frame from '$lib/components/P5Frame.svelte';
 	import CodeModal from '$lib/components/CodeModal.svelte';
 	import { resolve } from '$app/paths';
@@ -35,9 +36,11 @@
 		>
 			<div class="flex items-center gap-2">
 				<span
-					class="font-code rounded-md bg-rose-500/20 px-2 py-0.5 text-xs font-semibold text-rose-300"
-					>Multiplayer</span
+					class="font-code flex items-center gap-1.5 rounded-md bg-rose-500/20 px-2.5 py-1 text-xs font-semibold text-rose-300"
 				>
+					<Icon icon="lucide:users" class="h-3.5 w-3.5" />
+					Multiplayer
+				</span>
 				<span class="font-body text-xs text-zinc-300 sm:text-sm"
 					>Crie ou acesse uma sala compartilhada com outro jogador:</span
 				>
@@ -51,9 +54,10 @@
 				/>
 				<button
 					type="submit"
-					class="font-heading rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-500"
+					class="font-heading flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-500"
 				>
-					Entrar na Sala
+					<span>Entrar na Sala</span>
+					<Icon icon="lucide:arrow-right" class="h-3.5 w-3.5" />
 				</button>
 			</form>
 		</div>
@@ -96,20 +100,7 @@
 					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-800 hover:text-white"
 					title="Reiniciar sketch com estado inicial limpo"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-3.5 w-3.5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-						/>
-					</svg>
+					<Icon icon="lucide:rotate-ccw" class="h-3.5 w-3.5" />
 					<span>Reiniciar</span>
 				</button>
 
@@ -118,7 +109,7 @@
 					onclick={() => (isModalOpen = true)}
 					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-200 shadow-sm transition hover:border-[#ed225d]/60 hover:bg-[#ed225d]/10 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.25)]"
 				>
-					<span class="font-code text-xs font-semibold">&lt;/&gt;</span>
+					<Icon icon="lucide:code" class="h-3.5 w-3.5" />
 					<span>Ver Código ({project.codeTabs.length})</span>
 				</button>
 			</div>

@@ -39,6 +39,8 @@ class UIRenderer {
 			this.drawWaitingScreen(network);
 		} else if (game.state === 'ESCOLHENDO' || game.state === 'AGUARDANDO_OPONENTE_JOGADA') {
 			this.drawActionScreen(game);
+		} else if (game.state === 'REVELANDO') {
+			this.drawRevealingScreen(game);
 		} else if (game.state === 'RESULTADO') {
 			this.drawResultScreen(game);
 		}
@@ -109,20 +111,23 @@ class UIRenderer {
 		push();
 		const cy = height / 2;
 
+		// Ícone vetorial do Tubo de Ensaio graduado (Identidade Leveling Out)
+		this.drawTestTubeIcon(width / 2, cy - 75, 1.4);
+
 		fill(255);
-		textSize(26);
+		textSize(24);
 		textStyle(BOLD);
-		text('Aguardando Jogador...', width / 2, cy - 30);
+		text('Aguardando Jogador...', width / 2, cy - 10);
 
 		fill(161, 161, 170);
 		textSize(14);
 		textStyle(NORMAL);
-		text('Abra esta mesma sala em outro celular ou janela:', width / 2, cy + 10);
+		text('Abra esta mesma sala em outro celular ou janela:', width / 2, cy + 25);
 
 		fill(244, 63, 94);
 		textSize(16);
 		textStyle(BOLD);
-		text(`Código: ${network.roomCode}`, width / 2, cy + 45);
+		text(`Código: ${network.roomCode}`, width / 2, cy + 55);
 		pop();
 	}
 
@@ -182,17 +187,20 @@ class UIRenderer {
 
 			rect(bx, by, btnW, btnH, 16);
 
+			// Ícone Vetorial da Jogada
+			this.drawMoveIcon(m.id, bx, by - 14, 28, isSelected);
+
 			// Rótulo da Jogada
-			textSize(18);
+			textSize(16);
 			textStyle(BOLD);
 			fill(isSelected ? 255 : 228);
 			noStroke();
-			text(m.label, bx, isSelected ? by - 10 : by);
+			text(m.label, bx, isSelected ? by + 16 : by + 22);
 
 			if (isSelected) {
 				fill(255);
-				textSize(11);
-				text('SUA ESCOLHA', bx, by + 18);
+				textSize(10);
+				text('SUA ESCOLHA', bx, by + 32);
 			}
 			pop();
 		}
@@ -218,29 +226,33 @@ class UIRenderer {
 		textStyle(BOLD);
 		if (game.roundResult === 'VITÓRIA') {
 			fill(16, 185, 129);
-			text('VOCÊ VENCEU!', width / 2, cy - 30);
+			text('VOCÊ VENCEU!', width / 2, cy - 40);
 		} else if (game.roundResult === 'DERROTA') {
 			fill(239, 68, 68);
-			text('VOCÊ PERDEU!', width / 2, cy - 30);
+			text('VOCÊ PERDEU!', width / 2, cy - 40);
 		} else {
 			fill(245, 158, 11);
-			text('EMPATE!', width / 2, cy - 30);
+			text('EMPATE!', width / 2, cy - 40);
 		}
 
 		const iconMap = { pedra: 'Pedra', papel: 'Papel', tesoura: 'Tesoura' };
 
+		// Ícones das jogadas em confronto
+		this.drawMoveIcon(game.myMove, width / 2 - 100, cy + 10, 36, true);
+		this.drawMoveIcon(game.opponentMove, width / 2 + 100, cy + 10, 36, false);
+
 		fill(244, 63, 94);
-		textSize(18);
+		textSize(16);
 		textStyle(BOLD);
-		text(`Você: ${iconMap[game.myMove] || game.myMove}`, width / 2 - 100, cy + 40);
+		text(`Você: ${iconMap[game.myMove] || game.myMove}`, width / 2 - 100, cy + 46);
 
 		fill(113, 113, 122);
 		textSize(16);
-		text('vs', width / 2, cy + 40);
+		text('vs', width / 2, cy + 46);
 
 		fill(59, 130, 246);
-		textSize(18);
-		text(`Oponente: ${iconMap[game.opponentMove] || game.opponentMove}`, width / 2 + 100, cy + 40);
+		textSize(16);
+		text(`Oponente: ${iconMap[game.opponentMove] || game.opponentMove}`, width / 2 + 100, cy + 46);
 
 		// Botão Próxima Rodada
 		const btnW = min(220, width * 0.7);
@@ -263,6 +275,194 @@ class UIRenderer {
 		textSize(16);
 		textStyle(BOLD);
 		text('Próxima Rodada', width / 2, btnY);
+		pop();
+	}
+
+	drawRevealingScreen(game) {
+		push();
+		const cy = height * 0.45;
+		const elapsed = millis() - (game.revealStartTime || millis());
+
+		let stageWord = 'Pedra...';
+		let wordColor = color(244, 63, 94);
+		let scaleFactor = 1.0;
+		let activeIcon = 'pedra';
+
+		if (elapsed < 380) {
+			stageWord = 'Pedra...';
+			wordColor = color(244, 63, 94);
+			scaleFactor = 1.0 + (elapsed / 380) * 0.15;
+			activeIcon = 'pedra';
+		} else if (elapsed < 760) {
+			stageWord = 'Papel...';
+			wordColor = color(245, 158, 11);
+			scaleFactor = 1.0 + ((elapsed - 380) / 380) * 0.15;
+			activeIcon = 'papel';
+		} else if (elapsed < 1140) {
+			stageWord = 'Tesoura...';
+			wordColor = color(59, 130, 246);
+			scaleFactor = 1.0 + ((elapsed - 760) / 380) * 0.15;
+			activeIcon = 'tesoura';
+		} else {
+			stageWord = 'JÁ!';
+			wordColor = color(16, 185, 129);
+			scaleFactor = 1.3;
+			activeIcon = game.myMove || 'pedra';
+		}
+
+		// Ícone vetorial dinâmico do lance no ritmo da contagem
+		this.drawMoveIcon(activeIcon, width / 2, cy - 70, 44 * scaleFactor, elapsed >= 1140);
+
+		textSize(36 * scaleFactor);
+		textStyle(BOLD);
+		fill(wordColor);
+		text(stageWord, width / 2, cy - 15);
+
+		fill(161, 161, 170);
+		textSize(15);
+		textStyle(NORMAL);
+		text('Revelando lances simultaneamente...', width / 2, cy + 42);
+
+		const myMoveStr = game.myMove ? (game.myMove.charAt(0).toUpperCase() + game.myMove.slice(1)) : 'Pronto';
+		fill(244, 63, 94);
+		textSize(16);
+		textStyle(BOLD);
+		text(`Você: ${myMoveStr}`, width / 2 - 90, cy + 85);
+
+		fill(113, 113, 122);
+		text('vs', width / 2, cy + 85);
+
+		fill(59, 130, 246);
+		text('Oponente: ?', width / 2 + 90, cy + 85);
+		pop();
+	}
+
+	drawMoveIcon(type, x, y, size = 28, isSelected = false) {
+		push();
+		translate(x, y);
+		const s = size / 2;
+		strokeJoin(ROUND);
+		strokeCap(ROUND);
+
+		if (type === 'pedra') {
+			// Rocha facetada geométrica
+			if (isSelected) {
+				fill(255);
+				stroke(255);
+			} else {
+				fill(161, 161, 170);
+				stroke(212, 212, 216);
+			}
+			strokeWeight(1.5);
+			beginShape();
+			vertex(-s * 0.75, -s * 0.2);
+			vertex(-s * 0.35, -s * 0.85);
+			vertex(s * 0.45, -s * 0.7);
+			vertex(s * 0.85, s * 0.15);
+			vertex(s * 0.35, s * 0.85);
+			vertex(-s * 0.55, s * 0.65);
+			endShape(CLOSE);
+
+			stroke(isSelected ? color(244, 63, 94) : color(24, 24, 27));
+			strokeWeight(1.2);
+			line(-s * 0.35, -s * 0.85, 0, 0);
+			line(s * 0.45, -s * 0.7, 0, 0);
+			line(s * 0.85, s * 0.15, 0, 0);
+			line(s * 0.35, s * 0.85, 0, 0);
+			line(-s * 0.55, s * 0.65, 0, 0);
+			line(-s * 0.75, -s * 0.2, 0, 0);
+		} else if (type === 'papel') {
+			// Folha de documento com dobra superior direita
+			if (isSelected) {
+				fill(255);
+				stroke(255);
+			} else {
+				fill(161, 161, 170);
+				stroke(212, 212, 216);
+			}
+			strokeWeight(1.5);
+			const w = s * 1.3;
+			const h = s * 1.7;
+			const fold = s * 0.55;
+
+			beginShape();
+			vertex(-w / 2, -h / 2);
+			vertex(w / 2 - fold, -h / 2);
+			vertex(w / 2, -h / 2 + fold);
+			vertex(w / 2, h / 2);
+			vertex(-w / 2, h / 2);
+			endShape(CLOSE);
+
+			line(w / 2 - fold, -h / 2, w / 2 - fold, -h / 2 + fold);
+			line(w / 2 - fold, -h / 2 + fold, w / 2, -h / 2 + fold);
+
+			stroke(isSelected ? color(244, 63, 94) : color(24, 24, 27));
+			strokeWeight(1.2);
+			line(-w / 2 + s * 0.35, -h / 2 + fold + s * 0.25, w / 2 - s * 0.35, -h / 2 + fold + s * 0.25);
+			line(-w / 2 + s * 0.35, 0, w / 2 - s * 0.35, 0);
+			line(-w / 2 + s * 0.35, s * 0.4, w / 2 - s * 0.35, s * 0.4);
+		} else if (type === 'tesoura') {
+			// Lâminas de tesoura cruzadas estilizadas
+			stroke(isSelected ? 255 : 212);
+			strokeWeight(2);
+			noFill();
+
+			line(-s * 0.25, s * 0.1, s * 0.85, -s * 0.85);
+			line(s * 0.25, s * 0.1, -s * 0.85, -s * 0.85);
+
+			fill(isSelected ? color(244, 63, 94) : color(24, 24, 27));
+			strokeWeight(1.5);
+			ellipse(0, -s * 0.2, s * 0.4, s * 0.4);
+
+			noFill();
+			strokeWeight(1.8);
+			ellipse(-s * 0.45, s * 0.55, s * 0.6, s * 0.6);
+			ellipse(s * 0.45, s * 0.55, s * 0.6, s * 0.6);
+		}
+		pop();
+	}
+
+	drawTestTubeIcon(x, y, scaleFactor = 1.0) {
+		push();
+		translate(x, y);
+		scale(scaleFactor);
+		rectMode(CENTER);
+
+		// Bocal
+		noStroke();
+		fill(63, 63, 70);
+		rect(0, -28, 20, 4, 2);
+
+		// Vidro do Tubo de Ensaio
+		stroke(113, 113, 122);
+		strokeWeight(2);
+		fill(24, 24, 27, 200);
+		beginShape();
+		vertex(-7, -26);
+		vertex(-7, 18);
+		bezierVertex(-7, 28, 7, 28, 7, 18);
+		vertex(7, -26);
+		endShape();
+
+		// Líquido Rosa Leveling Out com menisco
+		noStroke();
+		fill(244, 63, 94, 220);
+		beginShape();
+		vertex(-5, 0);
+		vertex(-5, 18);
+		bezierVertex(-5, 26, 5, 26, 5, 18);
+		vertex(5, 0);
+		bezierVertex(2.5, 2, -2.5, 2, -5, 0);
+		endShape();
+
+		// Graduações do vidro
+		stroke(255, 255, 255, 90);
+		strokeWeight(1);
+		line(-5, -16, -1, -16);
+		line(-5, -8, -2, -8);
+		line(-5, 0, -1, 0);
+		line(-5, 8, -2, 8);
+		line(-5, 16, -1, 16);
 		pop();
 	}
 

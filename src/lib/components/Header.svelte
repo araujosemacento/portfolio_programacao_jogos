@@ -1,5 +1,5 @@
 <script>
-
+	import Icon from '@iconify/svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { getSketchBySlug } from '$lib/sketches/loader.js';
@@ -28,20 +28,7 @@
 					aria-label="Voltar para a página inicial"
 					title="Voltar para a página inicial"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-5 w-5 transition-transform group-hover:-translate-x-0.5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-						/>
-					</svg>
+					<Icon icon="lucide:arrow-left" class="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
 				</a>
 				<div class="flex items-center gap-2">
 					<a
@@ -57,8 +44,11 @@
 				</div>
 			</div>
 		{:else}
-			<!-- Header na página inicial: título com fonte Heading -->
+			<!-- Header na página inicial: ícone e título com fonte Heading -->
 			<div class="flex items-center gap-2.5">
+				<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#ed225d]/30 bg-[#ed225d]/10 text-[#ed225d]">
+					<Icon icon="lucide:gamepad-2" class="h-4.5 w-4.5" />
+				</div>
 				<h1 class="font-heading text-lg font-bold tracking-tight text-zinc-100 sm:text-xl">
 					Programação para Jogos I
 				</h1>

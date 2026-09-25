@@ -1,4 +1,5 @@
 <script>
+	import Icon from '@iconify/svelte';
 	import { onDestroy } from 'svelte';
 	import P5Frame from '$lib/components/P5Frame.svelte';
 	import { previewStore } from '$lib/sketches/preview-store.svelte.js';
@@ -138,11 +139,11 @@
 		<!-- Botão de código com fonte Fira Code e destaque rosa/vermelho p5 -->
 		<button
 			onclick={handleCodeClick}
-			class="pointer-events-auto flex items-center justify-center rounded-xl border border-white/20 bg-black/50 px-3 py-1.5 text-sm font-semibold font-code tracking-wider text-zinc-100 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-[#ed225d]/80 hover:bg-[#ed225d]/20 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.35)] active:scale-95 shadow-md"
+			class="pointer-events-auto flex items-center justify-center rounded-xl border border-white/20 bg-black/50 p-2 text-zinc-100 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-[#ed225d]/80 hover:bg-[#ed225d]/20 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.35)] active:scale-95 shadow-md"
 			aria-label="Visualizar código do projeto {project.title}"
 			title="Visualizar código em abas"
 		>
-			&lt;/&gt;
+			<Icon icon="lucide:code" class="h-4 w-4" />
 		</button>
 	</div>
 </div>

@@ -122,8 +122,29 @@ class GameEngine {
 			}
 			this.saveState();
 		} else if (data.type === 'PPT_RESOLVIDO') {
-			this.applyRoundResolution(data.data, network.myEquipe || 'A');
+			this.triggerDramaticReveal(data.data, network);
 			this.saveState();
+		}
+	}
+
+	triggerDramaticReveal(res, network) {
+		const myTeam = (network && network.myEquipe) || 'A';
+		if (this.pendingResolution && this.pendingResolution.res.rodada === res.rodada) return;
+
+		this.pendingResolution = { res, myTeam };
+		this.state = 'REVELANDO';
+		this.revealStartTime = millis();
+	}
+
+	update() {
+		if (this.state === 'REVELANDO' && this.pendingResolution) {
+			const elapsed = millis() - this.revealStartTime;
+			if (elapsed >= 1400) {
+				const { res, myTeam } = this.pendingResolution;
+				this.pendingResolution = null;
+				this.applyRoundResolution(res, myTeam);
+				this.saveState();
+			}
 		}
 	}
 

@@ -1,4 +1,5 @@
 <script>
+	import Icon from '@iconify/svelte';
 	import CodeHighlight from '$lib/components/CodeHighlight.svelte';
 
 	/** @type {{ isOpen?: boolean, project?: any }} */
@@ -132,9 +133,9 @@
 			>
 				<div class="flex items-center gap-3">
 					<span
-						class="font-code flex h-8 w-8 items-center justify-center rounded-xl border border-[#ed225d]/30 bg-[#ed225d]/10 text-xs font-semibold text-[#ed225d] shadow-[0_0_12px_rgba(237,34,93,0.2)]"
+						class="flex h-8 w-8 items-center justify-center rounded-xl border border-[#ed225d]/30 bg-[#ed225d]/10 text-[#ed225d] shadow-[0_0_12px_rgba(237,34,93,0.2)]"
 					>
-						&lt;/&gt;
+						<Icon icon="lucide:code-2" class="h-4 w-4" />
 					</span>
 					<div>
 						<h2 id="modal-title" class="font-heading text-base font-bold text-zinc-100 sm:text-lg">
@@ -154,32 +155,10 @@
 						title="Copiar código do arquivo selecionado (meta.json copiado com comentários para compatibilidade)"
 					>
 						{#if copiedTab}
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-3.5 w-3.5 text-emerald-400"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								stroke-width="2.5"
-							>
-								<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-							</svg>
+							<Icon icon="lucide:check" class="h-3.5 w-3.5 text-emerald-400" />
 							<span class="text-emerald-400">Arquivo Copiado!</span>
 						{:else}
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-3.5 w-3.5"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								stroke-width="2"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-								/>
-							</svg>
+							<Icon icon="lucide:copy" class="h-3.5 w-3.5" />
 							<span>Copiar Arquivo</span>
 						{/if}
 					</button>
@@ -192,8 +171,10 @@
 							title="Copiar todos os arquivos combinados"
 						>
 							{#if copiedAll}
+								<Icon icon="lucide:check" class="h-3.5 w-3.5 text-emerald-400" />
 								<span class="text-emerald-400">Tudo Copiado!</span>
 							{:else}
+								<Icon icon="lucide:files" class="h-3.5 w-3.5" />
 								<span>Copiar Tudo ({tabs.length})</span>
 							{/if}
 						</button>
@@ -205,16 +186,7 @@
 						class="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
 						aria-label="Fechar"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-5 w-5"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							stroke-width="2"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-						</svg>
+						<Icon icon="lucide:x" class="h-4.5 w-4.5" />
 					</button>
 				</div>
 			</div>

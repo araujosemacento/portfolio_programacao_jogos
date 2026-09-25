@@ -37,6 +37,9 @@ class NetworkManager {
 
 	loadOrGeneratePlayerId() {
 		try {
+			if (typeof window !== 'undefined' && window.__PLAYER_ID__) {
+				return window.__PLAYER_ID__;
+			}
 			const storageKey = `leveling_player_${this.roomCode}`;
 			const saved = sessionStorage.getItem(storageKey);
 			if (saved) {
@@ -284,6 +287,12 @@ class NetworkManager {
 				this.onMessage({
 					type: 'PPT_RESOLVIDO',
 					data: res
+				});
+			} else if (res.ultimo_resultado && res.ultimo_resultado.status === 'RESOLVIDO') {
+				this.stopStatusPolling();
+				this.onMessage({
+					type: 'PPT_RESOLVIDO',
+					data: res.ultimo_resultado
 				});
 			} else if (res.equipes_enviadas && Array.isArray(res.equipes_enviadas)) {
 				const opponentTeam = this.myEquipe === 'A' ? 'B' : 'A';

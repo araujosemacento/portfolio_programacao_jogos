@@ -14,6 +14,7 @@ import { protectLoops } from './loop-guard.js';
  * @param {string} [params.roomCode=''] Código da sala para sincronização multiplayer
  * @param {string} [params.basePath=''] Caminho base da aplicação (ex: /portfolio_programacao_jogos para GitHub Pages)
  * @param {string} [params.backendUrl=''] URL do servidor PocketBase (DEV ou PROD)
+ * @param {string} [params.playerId=''] Identificador único opcional para isolamento em testes simultâneos
  * @returns {string} Código HTML completo para o iframe srcdoc
  */
 export function generateRunnerHtml({
@@ -26,7 +27,8 @@ export function generateRunnerHtml({
 	enableRealtime = false,
 	roomCode = '',
 	basePath = '',
-	backendUrl = ''
+	backendUrl = '',
+	playerId = ''
 }) {
 	// Normaliza o modo de execução
 	/** @type {'thumbnail' | 'preview' | 'interactive'} */
@@ -272,6 +274,7 @@ export function generateRunnerHtml({
 	<script>
 	window.__BACKEND_URL__ = ${JSON.stringify(backendUrl || 'http://localhost:8090')};
 	window.__ROOM_CODE__ = ${JSON.stringify(roomCode || '')};
+	window.__PLAYER_ID__ = ${JSON.stringify(playerId || '')};
 	try {
 ${processedScripts}
 	} catch(err) {

@@ -1,4 +1,5 @@
 <script>
+	import Icon from '@iconify/svelte';
 	import P5Frame from '$lib/components/P5Frame.svelte';
 	import CodeModal from '$lib/components/CodeModal.svelte';
 	import { resolve } from '$app/paths';
@@ -34,6 +35,7 @@
 	<!-- Barra de Informações da Sala Conectada -->
 	<div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-500/30 bg-rose-950/20 px-4 py-3 backdrop-blur-sm">
 		<div class="flex items-center gap-2">
+			<Icon icon="game-icons:test-tubes" class="h-4.5 w-4.5 text-rose-400" />
 			<span class="font-heading text-sm font-semibold text-zinc-200">
 				Sala Ativa: <strong class="font-code text-rose-400">{roomCode}</strong>
 			</span>
@@ -47,14 +49,10 @@
 				title="Copiar link para enviar a outro jogador em outra rede"
 			>
 				{#if copied}
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-					</svg>
+					<Icon icon="lucide:check" class="h-3.5 w-3.5 text-emerald-400" />
 					<span class="text-emerald-400">Link Copiado!</span>
 				{:else}
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-					</svg>
+					<Icon icon="lucide:copy" class="h-3.5 w-3.5 text-zinc-400" />
 					<span>Copiar Link da Sala</span>
 				{/if}
 			</button>
@@ -62,9 +60,10 @@
 			<!-- Botão de Sair / Trocar de Sala -->
 			<a
 				href={resolve(`/projeto/${project.slug}`)}
-				class="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-zinc-700 hover:text-zinc-200"
+				class="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-zinc-700 hover:text-zinc-200"
 			>
-				Trocar de Sala
+				<Icon icon="lucide:arrow-left-right" class="h-3 w-3" />
+				<span>Trocar de Sala</span>
 			</a>
 		</div>
 	</div>
@@ -99,9 +98,7 @@
 					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-800 hover:text-white"
 					title="Reiniciar sketch com estado inicial limpo"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-					</svg>
+					<Icon icon="lucide:rotate-ccw" class="h-3.5 w-3.5" />
 					<span>Reiniciar</span>
 				</button>
 
@@ -110,7 +107,7 @@
 					onclick={() => (isModalOpen = true)}
 					class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-200 shadow-sm transition hover:border-[#ed225d]/60 hover:bg-[#ed225d]/10 hover:text-[#ed225d] hover:shadow-[0_0_15px_rgba(237,34,93,0.25)]"
 				>
-					<span class="font-code text-xs font-semibold">&lt;/&gt;</span>
+					<Icon icon="lucide:code" class="h-3.5 w-3.5" />
 					<span>Ver Código ({project.codeTabs.length})</span>
 				</button>
 			</div>

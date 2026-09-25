@@ -130,3 +130,15 @@ src/sketches/leveling-out/
    - Proibido o uso de elementos circulares decorativos (como classes `rounded-full` em spans de status ou pings de presença).
 
 Qualquer exceção requer comando explícito e direto no prompt do usuário.
+
+---
+
+## 7. Diretriz Estrita de Runtime e Gerenciador de Pacotes (Bun Exclusivo)
+
+Nesta máquina servidora e de desenvolvimento, o **Node.js** e o **npm** **NÃO estão instalados** no ambiente do sistema e é **expressamente proibido** tentar executar comandos `node`, `npm`, `npx` ou `pnpm`.
+* O **único** runtime JavaScript/TypeScript e gerenciador de pacotes admitido neste repositório é o **Bun** (`bun`).
+* Toda e qualquer operação de terminal executada por agentes autônomos ou desenvolvedores deve empregar estritamente a CLI do Bun:
+  - Instalação de dependências: `bun install` / `bun add [-d] <pacote>`
+  - Execução de scripts e build: `bun run dev`, `bun run build`, `bun run check`, `bun run test`
+  - Execução de scripts avulsos: `bun <caminho_do_arquivo.js>`
+
