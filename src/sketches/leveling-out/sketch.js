@@ -57,6 +57,17 @@ function touchStarted() {
 }
 
 function handleInput(x, y) {
+	if (network && network.syncError) {
+		if (ui.isRetryClicked(x, y)) {
+			network.reconcileState(true);
+		}
+		return;
+	}
+
+	if (network && network.isSynchronizing) {
+		return;
+	}
+
 	if (game.state === 'ESCOLHENDO') {
 		const chosenMove = ui.getMoveAt(x, y);
 		if (chosenMove) {

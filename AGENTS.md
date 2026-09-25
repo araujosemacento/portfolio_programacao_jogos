@@ -99,6 +99,8 @@ src/sketches/leveling-out/
 - [ ] **Renderização do Tubo de Ensaio:**
   - Animação do líquido graduado de 0% a 100% com menisco e borbulhas em p5.js.
   - Modo oculto: líquido visível apenas na tela do Codificador sorteado.
+- [ ] **Sistemas de Reatividade Otimista (Look & Feel):**
+  - Integrar padrões arquitetados (Optimistic UI, Heartbeat de Presença e tolerância a quedas) em todos os estágios do ciclo (ver `reactive_interactions_map.md`), garantindo feedback imediato e sem engasgos para os jogadores.
 - [ ] **Cartas de Espectro Conceitual:**
   - Banco de tópicos polares (ex.: Famoso/Anônimo, Fácil/Difícil, Gostoso/Ruim, etc.).
   - Interface de escolha de carta pelo time vencedor do minijogo.

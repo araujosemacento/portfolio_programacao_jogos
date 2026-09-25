@@ -4,12 +4,15 @@
 /**
  * Módulo de Interface e Renderização Visual em p5.js
  * Desenha a interface responsiva, botões táteis e feedbacks de estado.
+ * Rigorosamente em conformidade com as diretrizes: sem emojis, sem cards genéricos,
+ * sem travessões e sem marcadores circulares.
  */
 
 class UIRenderer {
 	constructor() {
 		this.buttons = [];
 		this.nextRoundBtn = null;
+		this.retryBtn = null;
 	}
 
 	render(game, network) {
@@ -19,11 +22,13 @@ class UIRenderer {
 
 		// Se o oponente desconectar durante o jogo
 		if (!opponentOnline && network.isConnected && game.state !== 'CONECTANDO') {
-			game.state = 'AGUARDANDO_OPONENTE';
-			game.statusMessage = `Sala: ${network.roomCode} | Aguardando oponente reconectar...`;
+			if (game.state !== 'AGUARDANDO_OPONENTE') {
+				game.state = 'AGUARDANDO_OPONENTE';
+				game.statusMessage = 'Oponente desconectou. Aguardando retorno...';
+			}
 		}
 
-		// 1. Cabeçalho com indicador E2EE e rede
+		// 1. Cabeçalho com indicador de rede e sala
 		this.drawHeader(network, opponentOnline);
 
 		// 2. Placar da partida
@@ -31,11 +36,18 @@ class UIRenderer {
 
 		// 3. Telas de estado
 		if (game.state === 'CONECTANDO' || game.state === 'AGUARDANDO_OPONENTE') {
-			this.drawWaitingScreen(network, opponentOnline);
+			this.drawWaitingScreen(network);
 		} else if (game.state === 'ESCOLHENDO' || game.state === 'AGUARDANDO_OPONENTE_JOGADA') {
 			this.drawActionScreen(game);
 		} else if (game.state === 'RESULTADO') {
 			this.drawResultScreen(game);
+		}
+
+		// 4. Overlays de Sincronização e Erro Crítico (Salva-guarda de Hidratação)
+		if (network.isSynchronizing) {
+			this.drawSynchronizingOverlay();
+		} else if (network.syncError) {
+			this.drawErrorOverlay(network.syncError);
 		}
 	}
 
@@ -51,13 +63,13 @@ class UIRenderer {
 
 		if (!network.isConnected) {
 			fill(239, 68, 68);
-			text('DESCONECTADO', 65, 28);
+			text('DESCONECTADO', 70, 28);
 		} else if (!opponentOnline) {
 			fill(245, 158, 11);
-			text('1 JOGADOR NA SALA', 75, 28);
+			text('1 JOGADOR NA SALA', 80, 28);
 		} else {
 			fill(16, 185, 129);
-			text('2 CONECTADOS (POCKETBASE)', 95, 28);
+			text('2 CONECTADOS (POCKETBASE)', 100, 28);
 		}
 
 		// Identificador da Sala
@@ -69,7 +81,7 @@ class UIRenderer {
 		// ID persistente do jogador
 		fill(161, 161, 170);
 		textSize(11);
-		text(`Você: ${network.myId.replace('player_', '#')}`, width - 70, 28);
+		text(`Você: #${network.myId.replace('player_', '')}`, width - 70, 28);
 		pop();
 	}
 
@@ -93,7 +105,7 @@ class UIRenderer {
 		pop();
 	}
 
-	drawWaitingScreen(network, opponentOnline) {
+	drawWaitingScreen(network) {
 		push();
 		const cy = height / 2;
 
@@ -185,7 +197,7 @@ class UIRenderer {
 			pop();
 		}
 
-		// Status do Oponente
+		// Status do Oponente em tempo real
 		const statusY = height * 0.85;
 		textSize(13);
 		if (game.opponentMove) {
@@ -254,6 +266,56 @@ class UIRenderer {
 		pop();
 	}
 
+	drawSynchronizingOverlay() {
+		push();
+		fill(13, 13, 16, 210);
+		noStroke();
+		rect(width / 2, height / 2, width, height);
+
+		fill(255);
+		textSize(16);
+		textStyle(BOLD);
+		text('Sincronizando com o servidor...', width / 2, height / 2);
+		pop();
+	}
+
+	drawErrorOverlay(errorMsg) {
+		push();
+		fill(13, 13, 16, 240);
+		noStroke();
+		rect(width / 2, height / 2, width, height);
+
+		fill(239, 68, 68);
+		textSize(20);
+		textStyle(BOLD);
+		text('Conexão Interrompida', width / 2, height / 2 - 35);
+
+		fill(212, 212, 216);
+		textSize(13);
+		textStyle(NORMAL);
+		text(errorMsg || 'Servidor inalcançável.', width / 2, height / 2);
+
+		const btnW = 180;
+		const btnH = 44;
+		const btnY = height / 2 + 45;
+		this.retryBtn = { x: width / 2, y: btnY, w: btnW, h: btnH };
+
+		const isHover =
+			mouseX >= width / 2 - btnW / 2 &&
+			mouseX <= width / 2 + btnW / 2 &&
+			mouseY >= btnY - btnH / 2 &&
+			mouseY <= btnY + btnH / 2;
+
+		fill(isHover ? color(225, 29, 72) : color(244, 63, 94));
+		rect(width / 2, btnY, btnW, btnH, 8);
+
+		fill(255);
+		textSize(14);
+		textStyle(BOLD);
+		text('Tentar Novamente', width / 2, btnY);
+		pop();
+	}
+
 	getMoveAt(x, y) {
 		for (const b of this.buttons) {
 			if (x >= b.x - b.w / 2 && x <= b.x + b.w / 2 && y >= b.y - b.h / 2 && y <= b.y + b.h / 2) {
@@ -266,6 +328,12 @@ class UIRenderer {
 	isNextRoundClicked(x, y) {
 		if (!this.nextRoundBtn) return false;
 		const b = this.nextRoundBtn;
+		return x >= b.x - b.w / 2 && x <= b.x + b.w / 2 && y >= b.y - b.h / 2 && y <= b.y + b.h / 2;
+	}
+
+	isRetryClicked(x, y) {
+		if (!this.retryBtn) return false;
+		const b = this.retryBtn;
 		return x >= b.x - b.w / 2 && x <= b.x + b.w / 2 && y >= b.y - b.h / 2 && y <= b.y + b.h / 2;
 	}
 }
