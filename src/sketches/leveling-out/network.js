@@ -14,6 +14,7 @@ class NetworkManager {
 		this.onStatusChange = onStatusChange;
 		this.getRoundId = typeof getRoundId === 'function' ? getRoundId : () => 1;
 		this.backendUrl = window.__BACKEND_URL__ || 'http://localhost:8090';
+		this.proxySecret = window.__PROXY_SECRET__ || '';
 
 		this.pb = null;
 		this.isConnected = false;
@@ -56,8 +57,11 @@ class NetworkManager {
 		try {
 			this.pb = new PocketBase(this.backendUrl);
 			this.pb.beforeSend = (url, options) => {
+				options.headers = Object.assign({}, options.headers, {
+					...(this.proxySecret ? { 'X-Proxy-Secret': this.proxySecret } : {})
+				});
 				options.referrerPolicy = 'no-referrer-when-downgrade';
-				return options;
+				return { url, options };
 			};
 			await this.reconcileState(true);
 			this.setupRealtimeSubscriptions();

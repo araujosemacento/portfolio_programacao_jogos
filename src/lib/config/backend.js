@@ -30,3 +30,12 @@ export function getBackendUrl() {
 
 	return env.PUBLIC_PROD_URL || env.PUBLIC_BACKEND_URL || 'http://localhost:8090';
 }
+
+/**
+ * Retorna o segredo de autenticação com o proxy reverso (se configurado).
+ * 
+ * @returns {string}
+ */
+export function getProxySecret() {
+	return env.PUBLIC_PB_PROXY_SECRET || env.PUBLIC_PROXY_SECRET || '';
+}

@@ -14,6 +14,7 @@ import { protectLoops } from './loop-guard.js';
  * @param {string} [params.roomCode=''] Código da sala para sincronização multiplayer
  * @param {string} [params.basePath=''] Caminho base da aplicação (ex: /portfolio_programacao_jogos para GitHub Pages)
  * @param {string} [params.backendUrl=''] URL do servidor PocketBase (DEV ou PROD)
+ * @param {string} [params.proxySecret=''] Segredo de cabeçalho X-Proxy-Secret para o proxy reverso
  * @param {string} [params.playerId=''] Identificador único opcional para isolamento em testes simultâneos
  * @returns {string} Código HTML completo para o iframe srcdoc
  */
@@ -28,6 +29,7 @@ export function generateRunnerHtml({
 	roomCode = '',
 	basePath = '',
 	backendUrl = '',
+	proxySecret = '',
 	playerId = ''
 }) {
 	// Normaliza o modo de execução
@@ -274,6 +276,7 @@ export function generateRunnerHtml({
 	<!-- Injeção dos Scripts do Sketch e Dados de Sala -->
 	<script>
 	window.__BACKEND_URL__ = ${JSON.stringify(backendUrl || 'http://localhost:8090')};
+	window.__PROXY_SECRET__ = ${JSON.stringify(proxySecret || '')};
 	window.__ROOM_CODE__ = ${JSON.stringify(roomCode || '')};
 	window.__PLAYER_ID__ = ${JSON.stringify(playerId || '')};
 	try {

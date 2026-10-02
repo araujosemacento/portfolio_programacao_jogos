@@ -40,7 +40,8 @@ jobs:
         env:
           BASE_PATH: '/portfolio_programacao_jogos'
           PUBLIC_ENVIRONMENT: 'production'
-          PUBLIC_PROD_URL: ${{ vars.PUBLIC_PROD_URL || secrets.PUBLIC_PROD_URL }}
+          PUBLIC_PROD_URL: ${{ secrets.PUBLIC_PROD_URL || vars.PUBLIC_PROD_URL }}
+          PUBLIC_PB_PROXY_SECRET: ${{ secrets.PB_PROXY_SECRET || vars.PB_PROXY_SECRET }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -2,7 +2,7 @@
 	import { onDestroy } from 'svelte';
 	import { base } from '$app/paths';
 	import { generateRunnerHtml } from '$lib/sketches/runner-html.js';
-	import { getBackendUrl } from '$lib/config/backend.js';
+	import { getBackendUrl, getProxySecret } from '$lib/config/backend.js';
 
 	/** 
 	 * @type {{
@@ -53,6 +53,7 @@
 				roomCode: currentRoom,
 				basePath: base,
 				backendUrl: getBackendUrl(),
+				proxySecret: getProxySecret(),
 				playerId: currentPlayerId
 			});
 		}, debounceMs);
