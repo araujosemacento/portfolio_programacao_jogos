@@ -6,6 +6,7 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
+		"backend": "./backend/pocketbase serve --dir=./backend/pb_data --hooksDir=./backend/pb_hooks --migrationsDir=./backend/pb_migrations",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

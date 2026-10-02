@@ -28,5 +28,5 @@ export function getBackendUrl() {
 		return 'http://localhost:8090';
 	}
 
-	return env.PUBLIC_BACKEND_URL || 'http://localhost:8090';
+	return env.PUBLIC_PROD_URL || env.PUBLIC_BACKEND_URL || 'http://localhost:8090';
 }

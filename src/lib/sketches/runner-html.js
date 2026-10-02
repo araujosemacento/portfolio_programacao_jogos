@@ -57,6 +57,7 @@ export function generateRunnerHtml({
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="referrer" content="no-referrer-when-downgrade">
 	<title>${slug}</title>
 	${cleanBase ? `<base href="${cleanBase}/">` : ''}
 	<style>

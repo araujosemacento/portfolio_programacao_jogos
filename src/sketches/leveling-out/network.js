@@ -55,6 +55,10 @@ class NetworkManager {
 
 		try {
 			this.pb = new PocketBase(this.backendUrl);
+			this.pb.beforeSend = (url, options) => {
+				options.referrerPolicy = 'no-referrer-when-downgrade';
+				return options;
+			};
 			await this.reconcileState(true);
 			this.setupRealtimeSubscriptions();
 		} catch (err) {
