@@ -43,11 +43,18 @@ class UIComponents {
 
 		// 3. Status de Conexão e Sala (lado direito)
 		textAlign(RIGHT, CENTER);
-		fill(212, 212, 216);
-		textSize(12);
-		textStyle(BOLD);
-		const equipeLabel = network.myEquipe ? `Equipe ${network.myEquipe}` : 'Conectando';
-		text(equipeLabel, width - 24, 22);
+		const myTeam = (network && network.myEquipe) || null;
+		if (myTeam) {
+			fill(myTeam === 'A' ? color(244, 63, 94) : color(96, 165, 250));
+			textSize(12);
+			textStyle(BOLD);
+			text(`Sua Equipe: ${myTeam}`, width - 24, 22);
+		} else {
+			fill(212, 212, 216);
+			textSize(12);
+			textStyle(BOLD);
+			text('Conectando', width - 24, 22);
+		}
 
 		textSize(10);
 		textStyle(NORMAL);
@@ -82,16 +89,17 @@ class UIComponents {
 		// Informações de Equipe A vs Equipe B
 		textAlign(CENTER, CENTER);
 
-		const isTeamA = !network || network.myEquipe === 'A';
-		const scoreA = isTeamA ? game.myScore || 0 : game.opponentScore || 0;
-		const scoreB = isTeamA ? game.opponentScore || 0 : game.myScore || 0;
+		const myTeam = (network && network.myEquipe) || game.myEquipe || 'A';
+		const scoreA = myTeam === 'A' ? game.myScore || 0 : game.opponentScore || 0;
+		const scoreB = myTeam === 'A' ? game.opponentScore || 0 : game.myScore || 0;
 		const roundNumber = game.roundId || game.round || 1;
 
 		// Equipe A (Rosa)
 		fill(244, 63, 94);
 		textSize(12);
 		textStyle(BOLD);
-		text('Equipe A', width / 2 - 90, py - 10);
+		const labelA = myTeam === 'A' ? 'Equipe A (Você)' : 'Equipe A';
+		text(labelA, width / 2 - 90, py - 10);
 		textSize(20);
 		fill(255);
 		text(scoreA, width / 2 - 90, py + 12);
@@ -106,7 +114,8 @@ class UIComponents {
 		fill(96, 165, 250);
 		textSize(12);
 		textStyle(BOLD);
-		text('Equipe B', width / 2 + 90, py - 10);
+		const labelB = myTeam === 'B' ? 'Equipe B (Você)' : 'Equipe B';
+		text(labelB, width / 2 + 90, py - 10);
 		textSize(20);
 		fill(255);
 		text(scoreB, width / 2 + 90, py + 12);

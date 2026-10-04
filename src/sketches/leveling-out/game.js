@@ -16,6 +16,8 @@ class GameEngine {
 		this.myScore = 0;
 		this.opponentScore = 0;
 		this.roundId = 1;
+		this.myEquipe = null; // 'A' ou 'B'
+		this.pendingServerScores = null; // Scores acumulados para aplicar apenas após a revelação
 		this.statusMessage = 'Inicializando...';
 
 		this.loadSavedState();
@@ -29,6 +31,7 @@ class GameEngine {
 				this.myScore = Number(data.myScore) || 0;
 				this.opponentScore = Number(data.opponentScore) || 0;
 				this.roundId = Number(data.roundId) || 1;
+				this.myEquipe = data.myEquipe || null;
 			}
 		} catch (e) {
 			console.warn('[Game] Erro ao carregar estado salvo:', e);
@@ -42,7 +45,8 @@ class GameEngine {
 				JSON.stringify({
 					myScore: this.myScore,
 					opponentScore: this.opponentScore,
-					roundId: this.roundId
+					roundId: this.roundId,
+					myEquipe: this.myEquipe
 				})
 			);
 		} catch (e) {
@@ -60,6 +64,7 @@ class GameEngine {
 			const sala = data.sala;
 			const myEquipe = data.myEquipe || 'A';
 			const oppTeam = myEquipe === 'A' ? 'B' : 'A';
+			this.myEquipe = myEquipe;
 
 			if (myEquipe === 'A') {
 				this.myScore = Number(sala.placar_a) || 0;
@@ -107,19 +112,23 @@ class GameEngine {
 			this.opponentMove = true;
 		} else if (data.type === 'SALA_UPDATE') {
 			const sala = data.sala;
-			const myTeam = network.myEquipe || 'A';
+			const myTeam = (network && network.myEquipe) || this.myEquipe || 'A';
+			this.myEquipe = myTeam;
 
-			if (myTeam === 'A') {
-				this.myScore = Number(sala.placar_a) || 0;
-				this.opponentScore = Number(sala.placar_b) || 0;
+			const newMyScore = myTeam === 'A' ? Number(sala.placar_a) || 0 : Number(sala.placar_b) || 0;
+			const newOppScore = myTeam === 'A' ? Number(sala.placar_b) || 0 : Number(sala.placar_a) || 0;
+
+			if (this.state !== 'RESULTADO') {
+				// Adia a atualização do placar visual enquanto a rodada estiver em andamento (escolha, espera ou contagem)
+				this.pendingServerScores = {
+					myScore: newMyScore,
+					opponentScore: newOppScore
+				};
 			} else {
-				this.myScore = Number(sala.placar_b) || 0;
-				this.opponentScore = Number(sala.placar_a) || 0;
+				this.myScore = newMyScore;
+				this.opponentScore = newOppScore;
+				this.saveState();
 			}
-
-			// Placar autoritativo atualizado via SSE.
-			// O roundId do jogador avança estritamente quando ele clica em "Próxima Rodada" via startNewRound().
-			this.saveState();
 		} else if (data.type === 'PPT_RESOLVIDO') {
 			this.triggerDramaticReveal(data.data, network);
 			this.saveState();
@@ -127,7 +136,8 @@ class GameEngine {
 	}
 
 	triggerDramaticReveal(res, network) {
-		const myTeam = (network && network.myEquipe) || 'A';
+		const myTeam = (network && network.myEquipe) || this.myEquipe || 'A';
+		this.myEquipe = myTeam;
 		if (!res || !res.rodada) return;
 
 		const resRound = Number(res.rodada);
@@ -156,7 +166,7 @@ class GameEngine {
 	update() {
 		if (this.state === 'REVELANDO' && this.pendingResolution) {
 			const elapsed = millis() - this.revealStartTime;
-			if (elapsed >= 1400) {
+			if (elapsed >= 3000) {
 				const { res, myTeam } = this.pendingResolution;
 				this.pendingResolution = null;
 				this.applyRoundResolution(res, myTeam);
@@ -167,9 +177,11 @@ class GameEngine {
 
 	applyRoundResolution(res, myTeam) {
 		const opponentTeam = myTeam === 'A' ? 'B' : 'A';
+		this.myEquipe = myTeam;
 
 		this.myMove = (res.lances && res.lances[myTeam]) || this.myMove;
 		this.opponentMove = (res.lances && res.lances[opponentTeam]) || null;
+		this.roundWinner = res.vencedor;
 
 		if (res.vencedor === 'EMPATE') {
 			this.roundResult = 'EMPATE';
@@ -180,6 +192,13 @@ class GameEngine {
 		} else {
 			this.roundResult = 'DERROTA';
 			this.statusMessage = 'Oponente venceu!';
+		}
+
+		// Atualiza o placar estritamente no momento em que os lances são revelados
+		if (this.pendingServerScores) {
+			this.myScore = this.pendingServerScores.myScore;
+			this.opponentScore = this.pendingServerScores.opponentScore;
+			this.pendingServerScores = null;
 		}
 
 		this.state = 'RESULTADO';

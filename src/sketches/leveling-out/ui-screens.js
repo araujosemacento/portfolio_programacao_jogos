@@ -48,6 +48,14 @@ class UIScreens {
 		const cy = height * 0.32;
 
 		textAlign(CENTER, CENTER);
+
+		// Indicador explícito da equipe a qual o jogador pertence
+		const myTeam = game.myEquipe || 'A';
+		fill(myTeam === 'A' ? color(244, 63, 94) : color(96, 165, 250));
+		textSize(12);
+		textStyle(BOLD);
+		text(`Você está jogando pela Equipe ${myTeam}`, width / 2, cy - 28);
+
 		fill(255);
 		textSize(22);
 		textStyle(BOLD);
@@ -162,15 +170,24 @@ class UIScreens {
 		textStyle(NORMAL);
 		text('Revelando em sincronia...', width / 2, height * 0.38);
 
-		// Animação dramática da contagem regressiva
+		// Contagem regressiva precisa de 3 segundos (3, 2, 1, Já!)
 		const startTime = game.revealStartTime || game.revealStartMs || millis();
 		const elapsed = (millis() - startTime) / 1000;
-		const remaining = max(0, ceil(1.4 - elapsed));
+		let countdownText = '3';
+		if (elapsed < 0.9) {
+			countdownText = '3';
+		} else if (elapsed < 1.8) {
+			countdownText = '2';
+		} else if (elapsed < 2.6) {
+			countdownText = '1';
+		} else {
+			countdownText = 'Já!';
+		}
 
 		fill(244, 63, 94);
 		textSize(56);
 		textStyle(BOLD);
-		text(remaining > 0 ? remaining : '!', width / 2, height * 0.54);
+		text(countdownText, width / 2, height * 0.54);
 
 		// Exibe o lance local pronto para colisão
 		if (game.myMove && typeof drawVectorIcon === 'function' && ICON_DATA[game.myMove]) {
@@ -182,19 +199,20 @@ class UIScreens {
 	/**
 	 * Tela de resultado final da rodada de Pedra, Papel e Tesoura
 	 * @param {GameEngine} game
+	 * @param {NetworkManager} [network]
 	 */
-	drawResultScreen(game) {
+	drawResultScreen(game, network) {
 		push();
 		textAlign(CENTER, CENTER);
 		const cy = height * 0.44;
 
-		let resultColor = color(255);
+		let resultColor = color(251, 191, 36);
 		let resultTitle = 'Empate!';
 
-		if (game.roundResult === 'VITÓRIA' || game.winner === game.myEquipe) {
+		if (game.roundResult === 'VITÓRIA') {
 			resultColor = color(52, 211, 153);
 			resultTitle = 'Você Venceu a Rodada!';
-		} else if (game.roundResult === 'DERROTA' || (game.winner && game.winner !== 'EMPATE')) {
+		} else if (game.roundResult === 'DERROTA') {
 			resultColor = color(239, 68, 68);
 			resultTitle = 'Oponente Venceu a Rodada!';
 		}
@@ -207,16 +225,20 @@ class UIScreens {
 		// Exibição dos confrontos com os ícones vetoriais
 		const myMoveId = game.myMove;
 		const oppMoveId = game.opponentMove;
+		const myTeam = (network && network.myEquipe) || game.myEquipe || 'A';
+		const oppTeam = myTeam === 'A' ? 'B' : 'A';
+		const myColor = myTeam === 'A' ? '#f43f5e' : '#60a5fa';
+		const oppColor = myTeam === 'A' ? '#60a5fa' : '#f43f5e';
 
 		if (myMoveId && oppMoveId) {
 			// Ícone Jogador
 			if (typeof drawVectorIcon === 'function' && ICON_DATA[myMoveId]) {
-				drawVectorIcon(ICON_DATA[myMoveId], width / 2 - 60, cy + 25, 44, '#f43f5e');
+				drawVectorIcon(ICON_DATA[myMoveId], width / 2 - 60, cy + 25, 44, myColor);
 			}
 			fill(255);
 			textSize(13);
 			textStyle(BOLD);
-			text('Você', width / 2 - 60, cy + 60);
+			text(`Você (${myTeam})`, width / 2 - 60, cy + 60);
 
 			fill(113, 113, 122);
 			textSize(16);
@@ -224,12 +246,12 @@ class UIScreens {
 
 			// Ícone Oponente
 			if (typeof drawVectorIcon === 'function' && ICON_DATA[oppMoveId]) {
-				drawVectorIcon(ICON_DATA[oppMoveId], width / 2 + 60, cy + 25, 44, '#60a5fa');
+				drawVectorIcon(ICON_DATA[oppMoveId], width / 2 + 60, cy + 25, 44, oppColor);
 			}
 			fill(255);
 			textSize(13);
 			textStyle(BOLD);
-			text('Oponente', width / 2 + 60, cy + 60);
+			text(`Oponente (${oppTeam})`, width / 2 + 60, cy + 60);
 		}
 
 		// Botão para avançar para a próxima rodada
